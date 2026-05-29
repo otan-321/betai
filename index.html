@@ -5777,7 +5777,7 @@ function renderLiveTrackerBets(pending, games, boxScores) {
     const statusLabel = isLive
       ? `<span class="live-dot"></span> LIVE ${gs?.period || ''}`
       : isFinal ? `FINAL ${gs?.awayScore}–${gs?.homeScore}`
-      : gs ? `${gs.awayAbbr} vs ${gs.homeAbbr}` : 'No game today';
+      : gs ? `${gs.awayAbbr} vs ${gs.homeAbbr}` : '⏳ Upcoming';
 
     // Evaluate legs with live stats
     const legs = bet.legs || [];
@@ -5868,25 +5868,11 @@ function renderLiveTrackerBets(pending, games, boxScores) {
     const oddsInfo = bet.odds ? ` · ×${bet.odds}` : '';
     const stakeInfo = bet.stake ? ` · ₱${formatMoney(bet.stake)}` : '';
 
-    // If no game matched, show legs from saved status with a note
-    if (!gs && legs.length) {
-      legs.forEach(leg => {
-        const sc = leg.status==='won'?'var(--green)':leg.status==='lost'?'var(--red)':'var(--text3)';
-        const sl = leg.status==='won'?'✅ WON':leg.status==='lost'?'❌ LOST':'⏳ PENDING';
-        legHtml += `
-          <div class="live-leg-row">
-            <div class="live-leg-desc">
-              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:1px;">${leg.market||''}</div>
-              <div>${(leg.desc||'').slice(0,60)}</div>
-            </div>
-            <div class="live-leg-stat" style="color:${sc};font-size:13px;">${sl}</div>
-          </div>`;
-      });
-    }
+    // No duplicate leg block — legs are already rendered above for all cases
 
     const noLiveNote = !gs ? `
       <div style="margin:0;padding:6px 14px 8px;background:rgba(61,139,255,0.07);border-top:1px solid var(--border);">
-        <div style="font-size:10px;color:var(--blue);">ℹ️ No live game found for this bet today — showing saved status. Live stats will appear when teams play.</div>
+        <div style="font-size:10px;color:var(--blue);">ℹ️ No matching game found in today's scoreboard — showing saved leg status. Live stats will appear once the game starts.</div>
       </div>` : '';
 
     html += `
