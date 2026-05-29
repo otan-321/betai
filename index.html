@@ -5689,10 +5689,41 @@ function renderLiveTrackerBets(pending, games, boxScores) {
   let html = '';
   let matched = 0;
 
+  // Build a rich search string from a bet using ALL available fields
+  function buildBetSearchText(bet) {
+    const parts = [
+      bet.awayTeam, bet.homeTeam, bet.gameName, bet.betLabel,
+      ...(bet.legs || []).map(l => (l.desc || '') + ' ' + (l.market || ''))
+    ].filter(Boolean).join(' ').toLowerCase();
+    return parts;
+  }
+
+  // Extract all team abbrs mentioned in bet text using TEAM_NAME_MAP
+  function getTeamAbbrsMentioned(searchText) {
+    const found = new Set();
+    Object.entries(TEAM_NAME_MAP).forEach(([key, abbr]) => {
+      if (searchText.includes(key)) found.add(abbr.toLowerCase());
+    });
+    // Also catch raw 3-letter abbrs like "okc", "lal", "gsw" etc
+    const abbrPattern = /([a-z]{2,3})/g;
+    let m;
+    while ((m = abbrPattern.exec(searchText)) !== null) {
+      const candidate = m[1].toUpperCase();
+      const allAbbrs = ['ATL','BOS','BKN','CHA','CHI','CLE','DAL','DEN','DET','GSW','HOU',
+        'IND','LAC','LAL','MEM','MIA','MIL','MIN','NOP','NYK','OKC','ORL','PHI','PHX',
+        'POR','SAC','SAS','TOR','UTA','WAS'];
+      if (allAbbrs.includes(candidate)) found.add(candidate.toLowerCase());
+    }
+    return found;
+  }
+
   pending.forEach(bet => {
-    // Find game for this bet
+    // Find game for this bet — use a much broader matching strategy
     let matchedGame = null;
-    const betTeams = [bet.awayTeam, bet.homeTeam, bet.gameName].filter(Boolean).join(' ').toLowerCase();
+    let bestScore = 0;
+
+    const betText = buildBetSearchText(bet);
+    const betAbbrs = getTeamAbbrsMentioned(betText);
 
     games.forEach(g => {
       const comp = g.competitions?.[0];
@@ -5700,15 +5731,43 @@ function renderLiveTrackerBets(pending, games, boxScores) {
       const home = comp?.competitors?.find(c=>c.homeAway==='home');
       const aAbbr = (away?.team?.abbreviation || '').toLowerCase();
       const hAbbr = (home?.team?.abbreviation || '').toLowerCase();
-      const aName = normName(away?.team?.displayName || '');
-      const hName = normName(home?.team?.displayName || '');
-      if (betTeams.includes(aAbbr) || betTeams.includes(hAbbr) ||
-          (aAbbr && betTeams.includes(aAbbr)) || (hAbbr && betTeams.includes(hAbbr)) ||
-          (aName && betTeams.replace(/ /g,'').includes(aName.replace(/ /g,''))) ||
-          (hName && betTeams.replace(/ /g,'').includes(hName.replace(/ /g,'')))) {
+      const aShort = normName(away?.team?.shortDisplayName || '');
+      const hShort = normName(home?.team?.shortDisplayName || '');
+      const aDisplay = normName(away?.team?.displayName || '');
+      const hDisplay = normName(home?.team?.displayName || '');
+      const aLocation = normName(away?.team?.location || '');
+      const hLocation = normName(home?.team?.location || '');
+
+      let score = 0;
+
+      // Direct abbr match in bet text
+      if (betAbbrs.has(aAbbr) || betText.includes(aAbbr)) score += 3;
+      if (betAbbrs.has(hAbbr) || betText.includes(hAbbr)) score += 3;
+
+      // Short name match (e.g. "Thunder", "Lakers")
+      if (aShort && betText.includes(aShort)) score += 4;
+      if (hShort && betText.includes(hShort)) score += 4;
+
+      // Full display name match
+      if (aDisplay && betText.includes(aDisplay)) score += 5;
+      if (hDisplay && betText.includes(hDisplay)) score += 5;
+
+      // Location match (e.g. "Oklahoma City", "Los Angeles")
+      if (aLocation && aLocation.length > 3 && betText.includes(aLocation)) score += 2;
+      if (hLocation && hLocation.length > 3 && betText.includes(hLocation)) score += 2;
+
+      // gameName format "XXX vs YYY" — check both orders
+      const gn = (bet.gameName || '').toLowerCase();
+      if (gn.includes(aAbbr) && gn.includes(hAbbr)) score += 6;
+
+      if (score > bestScore) {
+        bestScore = score;
         matchedGame = { ...scoreMap[g.id], id: g.id };
       }
     });
+
+    // Only use match if we have at least some confidence (score >= 2)
+    if (bestScore < 2) matchedGame = null;
 
     const gs = matchedGame;
     const isLive = gs?.inProgress;
@@ -5804,60 +5863,64 @@ function renderLiveTrackerBets(pending, games, boxScores) {
     const overallColor = allWon ? 'var(--green)' : anyLost ? 'var(--red)' : isLive ? 'var(--orange)' : 'var(--gold)';
     const overallBorder = allWon ? 'rgba(0,214,143,0.3)' : anyLost ? 'rgba(255,69,96,0.3)' : isLive ? 'rgba(255,107,26,0.3)' : 'var(--border)';
 
-    if (gs || legs.length) {
-      matched++;
-      const oddsInfo = bet.odds ? ` · ×${bet.odds}` : '';
-      const stakeInfo = bet.stake ? ` · ₱${formatMoney(bet.stake)}` : '';
-      html += `
-        <div class="live-bet-card" style="border-color:${overallBorder};">
-          <div class="live-bet-header">
-            <div>
-              <div class="live-bet-game">${bet.gameName || `${bet.awayTeam||''} vs ${bet.homeTeam||''}`}</div>
-              <div style="font-size:10px;color:var(--text3);margin-top:2px;">${bet.betLabel||''}${oddsInfo}${stakeInfo}</div>
+    // Always show the bet card regardless of match
+    matched++;
+    const oddsInfo = bet.odds ? ` · ×${bet.odds}` : '';
+    const stakeInfo = bet.stake ? ` · ₱${formatMoney(bet.stake)}` : '';
+
+    // If no game matched, show legs from saved status with a note
+    if (!gs && legs.length) {
+      legs.forEach(leg => {
+        const sc = leg.status==='won'?'var(--green)':leg.status==='lost'?'var(--red)':'var(--text3)';
+        const sl = leg.status==='won'?'✅ WON':leg.status==='lost'?'❌ LOST':'⏳ PENDING';
+        legHtml += `
+          <div class="live-leg-row">
+            <div class="live-leg-desc">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:1px;">${leg.market||''}</div>
+              <div>${(leg.desc||'').slice(0,60)}</div>
             </div>
-            <div>
-              <div class="live-bet-score" style="color:${statusColor};">${statusLabel}</div>
-              ${gs && (isLive||isFinal) ? `<div style="font-family:'Barlow Condensed';font-size:18px;font-weight:900;color:var(--text);text-align:right;">${gs.awayScore}–${gs.homeScore}</div>` : ''}
-            </div>
-          </div>
-          ${legHtml}
-          <div style="display:flex;justify-content:space-between;padding:8px 14px;background:var(--bg1);border-top:1px solid var(--border);">
-            <div style="font-family:'Barlow Condensed';font-size:13px;font-weight:700;color:${overallColor};">
-              ${allWon ? '✅ ALL LEGS HIT' : anyLost ? '❌ LEG BUSTED' : isLive ? '🔴 IN PROGRESS' : '⏳ PENDING'}
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button onclick="setBetStatus('${bet.id}','won')" style="padding:4px 10px;border:1px solid rgba(0,214,143,0.3);border-radius:6px;background:var(--green-dim);color:var(--green);font-size:10px;font-weight:700;cursor:pointer;">✅ WON</button>
-              <button onclick="setBetStatus('${bet.id}','lost')" style="padding:4px 10px;border:1px solid rgba(255,69,96,0.3);border-radius:6px;background:var(--red-dim);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;">❌ LOST</button>
-            </div>
-          </div>
-        </div>`;
+            <div class="live-leg-stat" style="color:${sc};font-size:13px;">${sl}</div>
+          </div>`;
+      });
     }
+
+    const noLiveNote = !gs ? `
+      <div style="margin:0;padding:6px 14px 8px;background:rgba(61,139,255,0.07);border-top:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--blue);">ℹ️ No live game found for this bet today — showing saved status. Live stats will appear when teams play.</div>
+      </div>` : '';
+
+    html += `
+      <div class="live-bet-card" style="border-color:${overallBorder};">
+        <div class="live-bet-header">
+          <div>
+            <div class="live-bet-game">${bet.gameName || `${bet.awayTeam||''} vs ${bet.homeTeam||''}`}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:2px;">${bet.betLabel||''}${oddsInfo}${stakeInfo}</div>
+          </div>
+          <div>
+            <div class="live-bet-score" style="color:${statusColor};">${statusLabel}</div>
+            ${gs && (isLive||isFinal) ? `<div style="font-family:'Barlow Condensed';font-size:18px;font-weight:900;color:var(--text);text-align:right;">${gs.awayScore}–${gs.homeScore}</div>` : ''}
+          </div>
+        </div>
+        ${legHtml}
+        ${noLiveNote}
+        <div style="display:flex;justify-content:space-between;padding:8px 14px;background:var(--bg1);border-top:1px solid var(--border);">
+          <div style="font-family:'Barlow Condensed';font-size:13px;font-weight:700;color:${overallColor};">
+            ${allWon ? '✅ ALL LEGS HIT' : anyLost ? '❌ LEG BUSTED' : isLive ? '🔴 IN PROGRESS' : '⏳ PENDING'}
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setBetStatus('${bet.id}','won')" style="padding:4px 10px;border:1px solid rgba(0,214,143,0.3);border-radius:6px;background:var(--green-dim);color:var(--green);font-size:10px;font-weight:700;cursor:pointer;">✅ WON</button>
+            <button onclick="setBetStatus('${bet.id}','lost')" style="padding:4px 10px;border:1px solid rgba(255,69,96,0.3);border-radius:6px;background:var(--red-dim);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;">❌ LOST</button>
+          </div>
+        </div>
+      </div>`;
   });
 
-  if (!matched) {
-    html = `
-      <div style="margin:0 16px 12px;background:var(--blue-dim);border:1px solid rgba(61,139,255,0.2);border-radius:var(--r);padding:14px 16px;">
-        <div style="font-size:12px;color:var(--blue);font-weight:700;margin-bottom:4px;">📋 ${pending.length} pending bet${pending.length>1?'s':''}</div>
-        <div style="font-size:11px;color:var(--text3);">None of your pending bets match today's NBA games.<br>Live stats show for today's matchups only.</div>
-      </div>
-      ${pending.map(b => `
-        <div class="live-bet-card">
-          <div class="live-bet-header">
-            <div>
-              <div class="live-bet-game">${b.gameName || `${b.awayTeam||''} vs ${b.homeTeam||''}`}</div>
-              <div style="font-size:10px;color:var(--text3);">${b.betLabel||''}</div>
-            </div>
-            <div style="font-size:10px;color:var(--text3);">No live game</div>
-          </div>
-        </div>`).join('')}`;
-  } else {
-    // Refresh info
-    html += `
-      <div style="padding:8px 16px 4px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:10px;color:var(--text3);" id="live-tracker-refresh-label">↻ Updates every 45s</span>
-        <button onclick="renderLiveTracker()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">REFRESH NOW</button>
-      </div>`;
-  }
+  // Always show refresh bar
+  html += `
+    <div style="padding:8px 16px 4px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:10px;color:var(--text3);" id="live-tracker-refresh-label">↻ Updates every 45s</span>
+      <button onclick="renderLiveTracker()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">REFRESH NOW</button>
+    </div>`;
 
   html += `<div style="height:20px"></div>`;
   el.innerHTML = html;
