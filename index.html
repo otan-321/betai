@@ -2453,10 +2453,11 @@ async function fetchSmartSlipGames() {
   ssState.loading = true;
   const today = new Date();
   const dates = [];
+  const phtTodayStr = getPHTDateStr();
   for (let i = 0; i <= 3; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
+    dates.push(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, ''));
   }
   let allGames = [];
   try {
@@ -2471,7 +2472,7 @@ async function fetchSmartSlipGames() {
   } catch(e) {}
   ssState.loading = false;
 
-  const todayStr = today.toISOString().split('T')[0].replace(/-/g,'');
+  const todayStr = phtTodayStr;
   const out = [];
   allGames.forEach(g => {
     const comp = g.competitions?.[0];
@@ -3901,7 +3902,7 @@ let liveState = {
   mode: 'schedule',   // 'schedule' | 'slip'
   liveTab: 'slip',    // 'slip' | 'boxscore'
   rawText: '',
-  gameDate: new Date().toISOString().split('T')[0],
+  gameDate: getPHTISODate(),
   selectedGame: null, // { id, date, awayAbbr, homeAbbr, awayName, homeName, statusName, completed, inProgress, tipoff }
   parsedLegs: [],
   results: [],
@@ -3981,10 +3982,11 @@ async function renderSchedulePicker() {
 
   const today = new Date();
   const dates = [];
+  const phtToday = getPHTDateStr(); // YYYYMMDD in Manila time
   for (let i = -7; i <= 7; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
+    dates.push(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, ''));
   }
 
   // Fetch all dates in parallel, collect games
@@ -4008,7 +4010,7 @@ async function renderSchedulePicker() {
     }
   }
 
-  const todayStr = today.toISOString().split('T')[0].replace(/-/g,'');
+  const todayStr = phtToday;
   const pastGames = [], todayGames = [], upcomingGames = [];
 
   allGames.forEach(g => {
@@ -4291,29 +4293,52 @@ async function runLiveCheck(silent = false) {
   }
 }
 
+// ── PHT DATE HELPER ──
+// Always use Manila time so "today" is correct in the Philippines (UTC+8)
+function getPHTDateStr() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, '');
+}
+function getPHTISODate() {
+  // Returns YYYY-MM-DD in PHT
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+}
+
 // ── CORS-PROXY ESPN FETCHER ──
+// Proxies tried in order: corsproxy.io first (most reliable), then allorigins,
+// then thingproxy as final fallback. Direct ESPN fetch is skipped because
+// GitHub Pages blocks cross-origin requests to espn.com.
 const CORS_PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
 async function fetchWithProxy(url) {
-  try {
-    const r = await fetch(url, { mode: 'cors', cache: 'no-store' });
-    if (r.ok) return await r.json();
-  } catch(e) {}
+  // Skip direct ESPN fetch on GitHub Pages (will always be CORS-blocked)
+  // Try proxies in order
   for (const proxy of CORS_PROXIES) {
     try {
       const r = await fetch(proxy(url), { cache: 'no-store' });
-      if (r.ok) return await r.json();
+      if (r.ok) {
+        const text = await r.text();
+        // allorigins wraps in {contents:...} for some endpoints
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed && parsed.contents && typeof parsed.contents === 'string') {
+            return JSON.parse(parsed.contents);
+          }
+          return parsed;
+        } catch(e2) { continue; }
+      }
     } catch(e) {}
   }
-  throw new Error('Network unavailable');
+  throw new Error('Network unavailable — all proxies failed');
 }
 
 // New: use the pre-selected game from schedule picker
 async function fetchNBAStatsByGameId(legs, selectedGame) {
-  const dateStr = (selectedGame.date || new Date().toISOString().split("T")[0]);
+  // date is stored as YYYYMMDD; fallback to PHT date
+  const dateStr = (selectedGame.date || getPHTDateStr()).replace(/-/g, '');
   const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
   const games = data.events || [];
   const targetGame = games.find(g => g.id === selectedGame.id) || games[0];
@@ -4333,7 +4358,7 @@ async function fetchNBAStatsByGameId(legs, selectedGame) {
 }
 
 async function fetchNBAStats(legs, mode, gameDate) {
-  const dateStr = (gameDate||new Date().toISOString().split("T")[0]).replace(/-/g,"");
+  const dateStr = (gameDate || getPHTISODate()).replace(/-/g,"");
   const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
   const games = data.events || [];
   if (games.length === 0) throw new Error("No games found for this date");
@@ -4878,12 +4903,12 @@ async function fetchAIBetGames() {
   if (aiBetState.games) return aiBetState.games;
   aiBetState.loading = true;
   const today = new Date();
-  // Fetch today + next 3 days
+  // Fetch today + next 3 days (using PHT timezone)
   const dates = [];
   for (let i = 0; i <= 3; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
+    dates.push(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, ''));
   }
   let allGames = [];
   try {
@@ -5607,16 +5632,22 @@ async function renderLiveTracker() {
 
   el.innerHTML = `<div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Fetching live games…</span></div>`;
 
-  // Fetch today's games
+  // Fetch today's games — use PHT date so Manila users get the right day
   try {
-    const todayStr = new Date().toISOString().split('T')[0].replace(/-/g,'');
+    const todayStr = getPHTDateStr();
     const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${todayStr}`);
     const games = data.events || [];
 
     // For each live/recent game, fetch box score
+    // Broaden live detection: any status that isn't pre-game or scheduled counts
     const liveGames = games.filter(g => {
       const st = g.competitions?.[0]?.status?.type;
-      return st?.name === 'STATUS_IN_PROGRESS' || st?.completed;
+      const name = st?.name || '';
+      return st?.completed ||
+        name === 'STATUS_IN_PROGRESS' ||
+        name === 'STATUS_HALFTIME' ||
+        name === 'STATUS_END_PERIOD' ||
+        (name !== 'STATUS_SCHEDULED' && name !== '' && !st?.completed === false);
     });
 
     // Fetch box scores for live games (limit 3 to avoid rate limits)
@@ -5679,7 +5710,7 @@ function renderLiveTrackerBets(pending, games, boxScores) {
       homeAbbr: home?.team?.abbreviation,
       awayScore: away?.score || '0',
       homeScore: home?.score || '0',
-      inProgress: st?.name === 'STATUS_IN_PROGRESS',
+      inProgress: st?.name === 'STATUS_IN_PROGRESS' || st?.name === 'STATUS_HALFTIME' || st?.name === 'STATUS_END_PERIOD',
       completed: st?.completed,
       period: comp?.status?.displayClock || st?.shortDetail || '',
     };
@@ -5767,7 +5798,19 @@ function renderLiveTrackerBets(pending, games, boxScores) {
     });
 
     // Only use match if we have at least some confidence (score >= 2)
-    if (bestScore < 2) matchedGame = null;
+    // If still no match but games exist, fall back to first game so bets always show
+    if (bestScore < 2) {
+      if (games.length > 0) {
+        // Try to grab a game that's live or recently completed, else the first game
+        const fallback = games.find(g => {
+          const st = g.competitions?.[0]?.status?.type;
+          return st?.name === 'STATUS_IN_PROGRESS' || st?.completed;
+        }) || games[0];
+        matchedGame = { ...scoreMap[fallback.id], id: fallback.id };
+      } else {
+        matchedGame = null;
+      }
+    }
 
     const gs = matchedGame;
     const isLive = gs?.inProgress;
