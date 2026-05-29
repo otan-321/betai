@@ -886,6 +886,80 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
   flex: 1; line-height: 1.3;
 }
 
+/* ──── LIVE BOX SCORE PANEL ──── */
+.box-score-tabs{display:flex;gap:6px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none;}
+.box-score-tabs::-webkit-scrollbar{display:none;}
+.bs-tab{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;background:none;
+  color:var(--text3);font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.bs-tab.active{border-color:var(--orange);color:var(--orange);background:var(--orange-dim);}
+.box-score-wrap{margin:0 16px 12px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);}
+.bs-header{display:grid;grid-template-columns:2fr repeat(6,1fr);background:var(--bg1);
+  padding:6px 10px;border-bottom:1px solid var(--border);}
+.bs-col-head{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  color:var(--text3);text-align:center;}
+.bs-col-head:first-child{text-align:left;}
+.bs-player-row{display:grid;grid-template-columns:2fr repeat(6,1fr);padding:7px 10px;
+  background:var(--bg2);border-bottom:1px solid var(--border);transition:background 0.15s;
+  cursor:pointer;}
+.bs-player-row:last-child{border-bottom:none;}
+.bs-player-row:hover,.bs-player-row.highlighted{background:var(--bg3);}
+.bs-player-row.highlighted{border-left:3px solid var(--orange);}
+.bs-player-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bs-player-pos{font-size:9px;color:var(--text3);margin-top:1px;}
+.bs-stat{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;
+  color:var(--text2);text-align:center;display:flex;align-items:center;justify-content:center;}
+.bs-stat.leader{color:var(--orange);}
+.bs-stat.hot{color:var(--gold);}
+.bs-team-section{background:var(--bg1);padding:5px 10px;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);}
+.bs-team-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;
+  letter-spacing:1px;color:var(--text2);}
+.bs-loading{display:flex;align-items:center;justify-content:center;padding:30px;gap:10px;
+  color:var(--text3);font-size:13px;}
+.bs-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);
+  animation:bs-bounce 0.9s ease-in-out infinite;}
+.bs-dot:nth-child(2){animation-delay:0.15s;}
+.bs-dot:nth-child(3){animation-delay:0.3s;}
+@keyframes bs-bounce{0%,80%,100%{transform:scale(0.5);opacity:0.5}40%{transform:scale(1);opacity:1}}
+.bs-score-bar{display:flex;align-items:center;justify-content:space-between;
+  margin:0 16px 10px;background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--r);padding:12px 16px;}
+.bs-score-team{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.bs-score-val{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;
+  color:var(--text);line-height:1;}
+.bs-score-abbr{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:1px;}
+.bs-period{font-size:11px;color:var(--orange);font-weight:700;text-align:center;
+  background:var(--orange-dim);border:1px solid var(--orange-glow);border-radius:6px;
+  padding:3px 10px;}
+.live-pulse{animation:pulse-dot 1.2s ease-in-out infinite;}
+
+/* ──── LIVE TRACKER TAB ──── */
+.tracker-tabs{display:flex;padding:0 16px 12px;gap:8px;}
+.tracker-tab{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);
+  background:none;color:var(--text3);font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;text-align:center;position:relative;}
+.tracker-tab.active{border-color:var(--orange);color:var(--orange);background:var(--orange-dim);}
+.tracker-tab .live-badge{position:absolute;top:-5px;right:-5px;
+  background:var(--red);color:#fff;font-size:8px;font-weight:800;
+  border-radius:100px;padding:1px 5px;min-width:16px;text-align:center;}
+.live-bet-card{background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r);margin:0 16px 10px;overflow:hidden;}
+.live-bet-header{display:flex;align-items:center;gap:10px;padding:12px 14px 8px;}
+.live-bet-game{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;
+  color:var(--text);flex:1;}
+.live-bet-score{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  color:var(--orange);text-align:right;}
+.live-leg-row{display:flex;align-items:center;gap:10px;padding:7px 14px;
+  border-top:1px solid var(--border);background:var(--bg1);}
+.live-leg-desc{flex:1;font-size:12px;color:var(--text2);line-height:1.4;}
+.live-leg-stat{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;
+  flex-shrink:0;min-width:40px;text-align:right;}
+.live-leg-progress{width:100%;height:3px;background:var(--bg4);border-radius:2px;margin-top:2px;overflow:hidden;}
+.live-leg-fill{height:100%;border-radius:2px;transition:width 0.5s ease;}
+
 /* ──── LIVE CHECK TUTORIAL ──── */
 .tut-slide{
   display:flex;flex-direction:column;align-items:center;
@@ -1125,17 +1199,32 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
   <!-- ══════════════════════════ PAGE: TRACKER ══════════════════════════ -->
   <div class="page" id="page-tracker">
     <div class="page-header">
-      <h1>ALL BETS</h1>
+      <h1 id="tracker-page-title">ALL BETS</h1>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="date-chip" id="tracker-count">0 bets</div>
         <button onclick="exportBets()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:4px 10px;cursor:pointer;letter-spacing:0.5px;">📦 EXPORT</button>
       </div>
     </div>
-    <div class="search-wrap">
-      <input class="search-input" id="tracker-search" placeholder="Search teams, bet types…" oninput="renderTracker()">
-    </div>
     <div style="height:8px"></div>
-    <div id="tracker-list"></div>
+    <div class="tracker-tabs">
+      <button class="tracker-tab active" id="ttab-all" onclick="setTrackerTab('all')">ALL BETS</button>
+      <button class="tracker-tab" id="ttab-live" onclick="setTrackerTab('live')">
+        🔴 LIVE TRACKER
+        <span class="live-badge" id="live-bet-badge" style="display:none">0</span>
+      </button>
+    </div>
+    <!-- ALL BETS panel -->
+    <div id="tracker-all-panel">
+      <div class="search-wrap" style="position:relative;top:0;">
+        <input class="search-input" id="tracker-search" placeholder="Search teams, bet types…" oninput="renderTracker()">
+      </div>
+      <div style="height:4px"></div>
+      <div id="tracker-list"></div>
+    </div>
+    <!-- LIVE TRACKER panel -->
+    <div id="tracker-live-panel" style="display:none;">
+      <div id="live-tracker-content"></div>
+    </div>
   </div>
 
   <!-- ══════════════════════════ PAGE: ANALYTICS ══════════════════════════ -->
@@ -1829,8 +1918,9 @@ function showPage(p) {
   // aibet nav button is nav-builder
   if (p === 'aibet') document.getElementById('nav-builder')?.classList.add('active');
 
+  if (p !== 'tracker') stopLiveTrackerRefresh();
   if (p === 'home') renderHome();
-  if (p === 'tracker') renderTracker();
+  if (p === 'tracker') { renderTracker(); updateLiveBadge(); }
   if (p === 'analytics') renderAnalytics();
   if (p === 'live') renderLivePage();
   if (p === 'aibet') renderAIBetPage();
@@ -3809,6 +3899,7 @@ function parsePasteModal() {
 // ════════════════════════════════════════════════
 let liveState = {
   mode: 'schedule',   // 'schedule' | 'slip'
+  liveTab: 'slip',    // 'slip' | 'boxscore'
   rawText: '',
   gameDate: new Date().toISOString().split('T')[0],
   selectedGame: null, // { id, date, awayAbbr, homeAbbr, awayName, homeName, statusName, completed, inProgress, tipoff }
@@ -3818,6 +3909,8 @@ let liveState = {
   autoRefreshTimer: null,
   autoRefreshCountdown: 0,
   scheduleGames: null,   // cached schedule list
+  boxScoreData: null,    // cached box score
+  boxScoreGameId: null,  // game id of cached box score
 };
 
 // ── UTILS ──
@@ -4010,8 +4103,11 @@ function selectScheduleGame(g) {
   liveState.selectedGame = g;
   liveState.gameDate = g.date;
   liveState.mode = 'slip';
+  liveState.liveTab = 'slip';
   liveState.results = [];
   liveState.rawText = '';
+  liveState.boxScoreData = null;
+  liveState.boxScoreGameId = null;
   renderSlipView();
 }
 
@@ -4062,18 +4158,39 @@ function renderSlipView() {
       <div style="font-size:11px;color:var(--text3);">Tip-off: ${phTime(g.tipoff)||'—'} PHT · Paste your slip now to pre-load it.</div>
     </div>` : ''}
 
-    <div class="sec-label">PASTE BET SLIP</div>
-    <div class="paste-box">
-      <textarea id="live-paste-input" class="paste-textarea" placeholder="Player rebounds - I. Hartenstein 7+ (Game)&#10;Player assists - Shai Gilgeous-Alexander 5+ (Game)&#10;Spread - Thunder -4.5 (Game)&#10;...">${liveState.rawText}</textarea>
-      <div class="paste-actions">
-        <button class="btn-parse" onclick="runLiveCheck()">⚡ CHECK BET</button>
-        <button class="btn-clear-paste" onclick="clearLiveCheck()">CLEAR</button>
+    <!-- Live page sub-tabs -->
+    <div class="box-score-tabs">
+      <button class="bs-tab ${liveState.liveTab!=='boxscore'?'active':''}" onclick="setLiveTab('slip')">📋 BET SLIP</button>
+      <button class="bs-tab ${liveState.liveTab==='boxscore'?'active':''}" onclick="setLiveTab('boxscore')">📊 BOX SCORE</button>
+    </div>
+
+    <!-- BET SLIP view -->
+    <div id="live-slip-panel" style="display:${liveState.liveTab==='boxscore'?'none':'block'};">
+      <div class="sec-label">PASTE BET SLIP</div>
+      <div class="paste-box">
+        <textarea id="live-paste-input" class="paste-textarea" placeholder="Player rebounds - I. Hartenstein 7+ (Game)&#10;Player assists - Shai Gilgeous-Alexander 5+ (Game)&#10;Spread - Thunder -4.5 (Game)&#10;...">${liveState.rawText}</textarea>
+        <div class="paste-actions">
+          <button class="btn-parse" onclick="runLiveCheck()">⚡ CHECK BET</button>
+          <button class="btn-clear-paste" onclick="clearLiveCheck()">CLEAR</button>
+        </div>
+      </div>
+      <div id="live-results-area">
+        ${liveState.results.length > 0 ? renderLiveResults() : renderLiveEmpty()}
       </div>
     </div>
-    <div id="live-results-area">
-      ${liveState.results.length > 0 ? renderLiveResults() : renderLiveEmpty()}
+
+    <!-- BOX SCORE view -->
+    <div id="live-boxscore-panel" style="display:${liveState.liveTab==='boxscore'?'block':'none'};">
+      <div id="box-score-content">
+        <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading box score…</span></div>
+      </div>
     </div>
   `;
+
+  // If box score tab is active, load it
+  if (liveState.liveTab === 'boxscore') {
+    loadBoxScore();
+  }
 }
 
 function renderLiveEmpty() {
@@ -5183,6 +5300,602 @@ function showTutSlide(idx) {
 
   tutCurrentStep = idx;
 }
+
+// ════════════════════════════════════════════════
+//  LIVE BOX SCORE — Full Player Stats Panel
+// ════════════════════════════════════════════════
+
+function setLiveTab(tab) {
+  liveState.liveTab = tab;
+  const slipPanel = document.getElementById('live-slip-panel');
+  const bsPanel = document.getElementById('live-boxscore-panel');
+  const tabs = document.querySelectorAll('.bs-tab');
+  if (!slipPanel || !bsPanel) { renderSlipView(); return; }
+  if (tab === 'boxscore') {
+    slipPanel.style.display = 'none';
+    bsPanel.style.display = 'block';
+    tabs.forEach((t,i) => t.classList.toggle('active', i===1));
+    loadBoxScore();
+  } else {
+    slipPanel.style.display = 'block';
+    bsPanel.style.display = 'none';
+    tabs.forEach((t,i) => t.classList.toggle('active', i===0));
+  }
+}
+
+async function loadBoxScore() {
+  const el = document.getElementById('box-score-content');
+  if (!el) return;
+  const g = liveState.selectedGame;
+  if (!g) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-text">No game selected.</div></div>'; return; }
+
+  // Use cache if same game
+  if (liveState.boxScoreGameId === g.id && liveState.boxScoreData) {
+    renderBoxScore(liveState.boxScoreData, g);
+    return;
+  }
+
+  el.innerHTML = '<div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading stats…</span></div>';
+  try {
+    const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
+    liveState.boxScoreData = data;
+    liveState.boxScoreGameId = g.id;
+    renderBoxScore(data, g);
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load box score.<br><span style="color:var(--orange);cursor:pointer;" onclick="liveState.boxScoreData=null;loadBoxScore()">Tap to retry</span></div></div>`;
+  }
+}
+
+function renderBoxScore(data, g) {
+  const el = document.getElementById('box-score-content');
+  if (!el) return;
+
+  const comp = data.header?.competitions?.[0] || data.boxscore?.teams?.[0];
+  const teams = data.boxscore?.teams || [];
+  const players = data.boxscore?.players || [];
+
+  // Score bar
+  let awayScore = g.awayScore || '—', homeScore = g.homeScore || '—';
+  let periodLabel = '';
+  try {
+    const hdr = data.header?.competitions?.[0];
+    const st = hdr?.status;
+    awayScore = hdr?.competitors?.find(c=>c.homeAway==='away')?.score ?? awayScore;
+    homeScore = hdr?.competitors?.find(c=>c.homeAway==='home')?.score ?? homeScore;
+    periodLabel = st?.type?.shortDetail || st?.displayClock || '';
+  } catch(e) {}
+
+  const isLive = g.inProgress;
+  const isFinal = g.completed;
+
+  let html = `
+    <div class="bs-score-bar">
+      <div class="bs-score-team">
+        <div class="bs-score-val">${awayScore}</div>
+        <div class="bs-score-abbr">${g.awayAbbr}</div>
+      </div>
+      <div style="text-align:center;">
+        ${isLive ? `<div class="bs-period"><span class="live-dot"></span> ${periodLabel || 'LIVE'}</div>` :
+          isFinal ? `<div class="bs-period" style="color:var(--text3);border-color:var(--border);">FINAL</div>` :
+          `<div class="bs-period" style="color:var(--blue);border-color:rgba(61,139,255,0.3);">UPCOMING</div>`}
+        <div style="font-size:9px;color:var(--text3);margin-top:4px;letter-spacing:0.5px;">TOTAL: ${(parseInt(awayScore)||0)+(parseInt(homeScore)||0)}</div>
+      </div>
+      <div class="bs-score-team">
+        <div class="bs-score-val">${homeScore}</div>
+        <div class="bs-score-abbr">${g.homeAbbr}</div>
+      </div>
+    </div>`;
+
+  // Filter buttons for stat highlight
+  html += `
+    <div style="padding:0 16px 8px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;">
+      <button class="bs-tab active" id="bs-focus-pts" onclick="setBoxFocus('pts',this)">PTS</button>
+      <button class="bs-tab" id="bs-focus-reb" onclick="setBoxFocus('reb',this)">REB</button>
+      <button class="bs-tab" id="bs-focus-ast" onclick="setBoxFocus('ast',this)">AST</button>
+      <button class="bs-tab" id="bs-focus-3pm" onclick="setBoxFocus('3pm',this)">3PM</button>
+      <button class="bs-tab" id="bs-focus-stl" onclick="setBoxFocus('stl',this)">STL</button>
+      <button class="bs-tab" id="bs-focus-blk" onclick="setBoxFocus('blk',this)">BLK</button>
+    </div>`;
+
+  if (!players.length) {
+    html += `<div class="empty-state" style="padding:30px 20px;"><div class="empty-icon">📊</div><div class="empty-text">Box score not available yet.<br>Stats appear once the game starts.</div></div>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  html += `<div id="box-score-table">`;
+
+  // Column headers
+  html += `
+    <div class="box-score-wrap">
+      <div class="bs-header">
+        <div class="bs-col-head">PLAYER</div>
+        <div class="bs-col-head">PTS</div>
+        <div class="bs-col-head">REB</div>
+        <div class="bs-col-head">AST</div>
+        <div class="bs-col-head">3PM</div>
+        <div class="bs-col-head">STL</div>
+        <div class="bs-col-head">BLK</div>
+      </div>`;
+
+  // Collect leaders per stat for highlighting
+  const allAthletes = [];
+  players.forEach(tp => {
+    const teamAbbr = tp.team?.abbreviation || '';
+    const teamName = tp.team?.shortDisplayName || teamAbbr;
+    (tp.statistics || []).forEach(sg => {
+      const labels = (sg.labels || []).map(l => l.toLowerCase());
+      (sg.athletes || []).forEach(ath => {
+        if (!ath.stats || ath.stats.every(s => !s || s === '0' || s === '--')) return;
+        const sm = {};
+        labels.forEach((lb, i) => { sm[lb] = parseFloat(ath.stats[i]) || 0; });
+        allAthletes.push({
+          name: ath.athlete?.displayName || '—',
+          pos: ath.athlete?.position?.abbreviation || '',
+          teamAbbr, teamName,
+          pts: sm['pts'] || sm['points'] || 0,
+          reb: sm['reb'] || sm['trb'] || sm['rebounds'] || 0,
+          ast: sm['ast'] || sm['assists'] || 0,
+          threepm: sm['3pm'] || sm['fgm3'] || sm['3pt'] || 0,
+          stl: sm['stl'] || sm['steals'] || 0,
+          blk: sm['blk'] || sm['blocks'] || 0,
+          min: sm['min'] || 0,
+        });
+      });
+    });
+  });
+
+  // Find leaders
+  const leaders = {
+    pts: Math.max(...allAthletes.map(a=>a.pts)),
+    reb: Math.max(...allAthletes.map(a=>a.reb)),
+    ast: Math.max(...allAthletes.map(a=>a.ast)),
+    threepm: Math.max(...allAthletes.map(a=>a.threepm)),
+    stl: Math.max(...allAthletes.map(a=>a.stl)),
+    blk: Math.max(...allAthletes.map(a=>a.blk)),
+  };
+
+  // Group by team
+  const byTeam = {};
+  allAthletes.forEach(a => {
+    if (!byTeam[a.teamAbbr]) byTeam[a.teamAbbr] = { name: a.teamName, players: [] };
+    byTeam[a.teamAbbr].players.push(a);
+  });
+
+  Object.entries(byTeam).forEach(([abbr, team]) => {
+    html += `<div class="bs-team-section">${teamLogoImg(abbr, 16)} <span class="bs-team-label">${abbr} · ${team.name}</span></div>`;
+    // Sort by pts desc
+    team.players.sort((a,b) => b.pts - a.pts);
+    team.players.forEach(p => {
+      const statClass = (val, leaderVal) => val > 0 && val === leaderVal ? ' leader' : val > 0 && val >= leaderVal*0.75 ? ' hot' : '';
+      html += `
+        <div class="bs-player-row" id="bsr-${p.name.replace(/[^a-z]/gi,'')}" onclick="highlightBoxPlayer('${p.name.replace(/'/g,'\'').replace(/"/g,'&quot;')}')">
+          <div>
+            <div class="bs-player-name">${p.name}</div>
+            <div class="bs-player-pos">${p.pos}${p.min ? ` · ${p.min}m` : ''}</div>
+          </div>
+          <div class="bs-stat${statClass(p.pts, leaders.pts)}">${p.pts||0}</div>
+          <div class="bs-stat${statClass(p.reb, leaders.reb)}">${p.reb||0}</div>
+          <div class="bs-stat${statClass(p.ast, leaders.ast)}">${p.ast||0}</div>
+          <div class="bs-stat${statClass(p.threepm, leaders.threepm)}">${p.threepm||0}</div>
+          <div class="bs-stat${statClass(p.stl, leaders.stl)}">${p.stl||0}</div>
+          <div class="bs-stat${statClass(p.blk, leaders.blk)}">${p.blk||0}</div>
+        </div>`;
+    });
+  });
+
+  html += `</div></div>`;
+
+  // Refresh button
+  html += `
+    <div style="padding:8px 16px 16px;display:flex;gap:8px;align-items:center;justify-content:center;">
+      <button onclick="liveState.boxScoreData=null;loadBoxScore()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:11px;font-weight:700;padding:6px 16px;cursor:pointer;letter-spacing:0.5px;">↻ REFRESH STATS</button>
+      ${isLive ? `<span style="font-size:10px;color:var(--text3);">Live · updates on refresh</span>` : ''}
+    </div>
+    <div style="height:8px"></div>`;
+
+  el.innerHTML = html;
+
+  // Highlight players from active bet slip legs
+  if (liveState.results.length) {
+    liveState.results.forEach(r => {
+      if (r.playerName) highlightBoxPlayer(r.playerName, false);
+    });
+  }
+}
+
+function setBoxFocus(stat, btn) {
+  // Update tab active state
+  document.querySelectorAll('#box-score-content .bs-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Re-sort rows by chosen stat
+  const statIdx = {pts:1, reb:2, ast:3, '3pm':4, stl:5, blk:6};
+  const colIdx = statIdx[stat];
+  if (!colIdx) return;
+
+  const wrap = document.querySelector('.box-score-wrap');
+  if (!wrap) return;
+
+  // Highlight column header
+  wrap.querySelectorAll('.bs-col-head').forEach((h, i) => {
+    h.style.color = i === colIdx ? 'var(--orange)' : '';
+  });
+
+  // Highlight leading cell per team section
+  const rows = wrap.querySelectorAll('.bs-player-row');
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('.bs-stat');
+    cells.forEach((c, i) => {
+      c.style.color = '';
+    });
+  });
+
+  // Get max val and highlight
+  let maxVal = 0;
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('.bs-stat');
+    const cell = cells[colIdx - 1];
+    if (cell) maxVal = Math.max(maxVal, parseFloat(cell.textContent) || 0);
+  });
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('.bs-stat');
+    const cell = cells[colIdx - 1];
+    if (cell && parseFloat(cell.textContent) === maxVal && maxVal > 0) {
+      cell.style.color = 'var(--orange)';
+    }
+  });
+}
+
+function highlightBoxPlayer(name, scroll=true) {
+  const norm = n => n.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const normName = norm(name);
+  const rows = document.querySelectorAll('.bs-player-row');
+  rows.forEach(row => {
+    const nameEl = row.querySelector('.bs-player-name');
+    if (!nameEl) return;
+    const rowName = norm(nameEl.textContent);
+    const isMatch = rowName.includes(normName) || normName.includes(rowName.split(' ').pop());
+    row.classList.toggle('highlighted', isMatch);
+    if (isMatch && scroll) row.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+}
+
+// ════════════════════════════════════════════════
+//  LIVE TRACKER — Real-time Bet Monitoring
+// ════════════════════════════════════════════════
+
+let trackerTab = 'all';
+let liveTrackerRefreshTimer = null;
+let liveTrackerData = {}; // gameId -> { awayScore, homeScore, period, players: [...] }
+
+function setTrackerTab(tab) {
+  trackerTab = tab;
+  const allPanel = document.getElementById('tracker-all-panel');
+  const livePanel = document.getElementById('tracker-live-panel');
+  const allTab = document.getElementById('ttab-all');
+  const liveTab = document.getElementById('ttab-live');
+  if (!allPanel || !livePanel) return;
+  if (tab === 'live') {
+    allPanel.style.display = 'none';
+    livePanel.style.display = 'block';
+    allTab.classList.remove('active');
+    liveTab.classList.add('active');
+    document.getElementById('tracker-page-title').textContent = 'LIVE TRACKER';
+    renderLiveTracker();
+  } else {
+    allPanel.style.display = 'block';
+    livePanel.style.display = 'none';
+    allTab.classList.add('active');
+    liveTab.classList.remove('active');
+    document.getElementById('tracker-page-title').textContent = 'ALL BETS';
+    renderTracker();
+  }
+}
+
+async function renderLiveTracker() {
+  const el = document.getElementById('live-tracker-content');
+  if (!el) return;
+
+  // Find pending bets
+  const pending = bets.filter(b => b.status === 'pending');
+  if (!pending.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No pending bets to track.<br>Add bets in the Builder or Live Check tabs.</div></div>`;
+    updateLiveBadge();
+    return;
+  }
+
+  el.innerHTML = `<div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Fetching live games…</span></div>`;
+
+  // Fetch today's games
+  try {
+    const todayStr = new Date().toISOString().split('T')[0].replace(/-/g,'');
+    const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${todayStr}`);
+    const games = data.events || [];
+
+    // For each live/recent game, fetch box score
+    const liveGames = games.filter(g => {
+      const st = g.competitions?.[0]?.status?.type;
+      return st?.name === 'STATUS_IN_PROGRESS' || st?.completed;
+    });
+
+    // Fetch box scores for live games (limit 3 to avoid rate limits)
+    const boxScores = {};
+    await Promise.all(liveGames.slice(0,4).map(async g => {
+      try {
+        const bs = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
+        boxScores[g.id] = bs;
+      } catch(e) {}
+    }));
+
+    renderLiveTrackerBets(pending, games, boxScores);
+
+    // Start auto-refresh every 45s if any live games
+    const hasLive = games.some(g => g.competitions?.[0]?.status?.type?.name === 'STATUS_IN_PROGRESS');
+    if (hasLive) startLiveTrackerRefresh(games, boxScores);
+    else stopLiveTrackerRefresh();
+
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Couldn't load live data.<br><span style="color:var(--orange);cursor:pointer;" onclick="renderLiveTracker()">Tap to retry</span></div></div>`;
+  }
+  updateLiveBadge();
+}
+
+function renderLiveTrackerBets(pending, games, boxScores) {
+  const el = document.getElementById('live-tracker-content');
+  if (!el) return;
+
+  // Extract player stats from box scores
+  const playerStatMap = {}; // normName -> { pts, reb, ast, 3pm, stl, blk, gameId }
+  Object.entries(boxScores).forEach(([gameId, bs]) => {
+    (bs.boxscore?.players || []).forEach(tp => {
+      (tp.statistics || []).forEach(sg => {
+        const labels = (sg.labels || []).map(l => l.toLowerCase());
+        (sg.athletes || []).forEach(ath => {
+          const nm = normName(ath.athlete?.displayName || '');
+          if (!nm) return;
+          const sm = {};
+          labels.forEach((lb, i) => { sm[lb] = parseFloat(ath.stats?.[i]) || 0; });
+          playerStatMap[nm] = {
+            displayName: ath.athlete?.displayName,
+            pts: sm['pts'] || 0, reb: sm['reb'] || sm['trb'] || 0,
+            ast: sm['ast'] || 0, threepm: sm['3pm'] || sm['fgm3'] || 0,
+            stl: sm['stl'] || 0, blk: sm['blk'] || 0, gameId
+          };
+        });
+      });
+    });
+  });
+
+  // Score map
+  const scoreMap = {};
+  games.forEach(g => {
+    const comp = g.competitions?.[0];
+    const away = comp?.competitors?.find(c=>c.homeAway==='away');
+    const home = comp?.competitors?.find(c=>c.homeAway==='home');
+    const st = comp?.status?.type;
+    scoreMap[g.id] = {
+      awayAbbr: away?.team?.abbreviation,
+      homeAbbr: home?.team?.abbreviation,
+      awayScore: away?.score || '0',
+      homeScore: home?.score || '0',
+      inProgress: st?.name === 'STATUS_IN_PROGRESS',
+      completed: st?.completed,
+      period: comp?.status?.displayClock || st?.shortDetail || '',
+    };
+  });
+
+  // Match bets to games
+  let html = '';
+  let matched = 0;
+
+  pending.forEach(bet => {
+    // Find game for this bet
+    let matchedGame = null;
+    const betTeams = [bet.awayTeam, bet.homeTeam, bet.gameName].filter(Boolean).join(' ').toLowerCase();
+
+    games.forEach(g => {
+      const comp = g.competitions?.[0];
+      const away = comp?.competitors?.find(c=>c.homeAway==='away');
+      const home = comp?.competitors?.find(c=>c.homeAway==='home');
+      const aAbbr = (away?.team?.abbreviation || '').toLowerCase();
+      const hAbbr = (home?.team?.abbreviation || '').toLowerCase();
+      const aName = normName(away?.team?.displayName || '');
+      const hName = normName(home?.team?.displayName || '');
+      if (betTeams.includes(aAbbr) || betTeams.includes(hAbbr) ||
+          (aAbbr && betTeams.includes(aAbbr)) || (hAbbr && betTeams.includes(hAbbr)) ||
+          (aName && betTeams.replace(/ /g,'').includes(aName.replace(/ /g,''))) ||
+          (hName && betTeams.replace(/ /g,'').includes(hName.replace(/ /g,'')))) {
+        matchedGame = { ...scoreMap[g.id], id: g.id };
+      }
+    });
+
+    const gs = matchedGame;
+    const isLive = gs?.inProgress;
+    const isFinal = gs?.completed;
+
+    const statusColor = isLive ? 'var(--orange)' : isFinal ? 'var(--text3)' : 'var(--blue)';
+    const statusLabel = isLive
+      ? `<span class="live-dot"></span> LIVE ${gs?.period || ''}`
+      : isFinal ? `FINAL ${gs?.awayScore}–${gs?.homeScore}`
+      : gs ? `${gs.awayAbbr} vs ${gs.homeAbbr}` : 'No game today';
+
+    // Evaluate legs with live stats
+    const legs = bet.legs || [];
+    let legHtml = '';
+    let wonLegs = 0, lostLegs = 0;
+
+    legs.forEach(leg => {
+      const playerName = extractPlayerName(leg.desc || '');
+      const statType = detectStatType(leg.market || '');
+      const target = parseTarget(leg.desc || '');
+      const normPName = normName(playerName);
+
+      // Find best match in player stats
+      let pStats = null;
+      let bestMatch = null;
+      const lnPlayer = lastName(playerName);
+      Object.entries(playerStatMap).forEach(([nm, ps]) => {
+        if (nm.includes(lnPlayer) || nm.includes(normPName)) {
+          bestMatch = ps;
+        }
+      });
+      pStats = bestMatch;
+
+      let curVal = null, statLabel = 'PTS';
+      if (pStats) {
+        if (statType === 'rebounds') { curVal = pStats.reb; statLabel = 'REB'; }
+        else if (statType === 'assists') { curVal = pStats.ast; statLabel = 'AST'; }
+        else if (statType === 'threesMade') { curVal = pStats.threepm; statLabel = '3PM'; }
+        else if (statType === 'steals') { curVal = pStats.stl; statLabel = 'STL'; }
+        else if (statType === 'blocks') { curVal = pStats.blk; statLabel = 'BLK'; }
+        else { curVal = pStats.pts; statLabel = 'PTS'; }
+      }
+
+      // Game total / spread
+      if ((statType === 'gameTotal' || statType === 'spread' || statType === 'winner') && gs) {
+        curVal = parseInt(gs.awayScore||0) + parseInt(gs.homeScore||0);
+        statLabel = 'TOTAL';
+      }
+
+      let hitting = null, progress = 0;
+      if (target && curVal !== null) {
+        if (target.dir === 'over') {
+          hitting = curVal >= target.val;
+          progress = Math.min(100, (curVal / target.val) * 100);
+        } else if (target.dir === 'under') {
+          hitting = curVal <= target.val;
+          progress = hitting ? 100 : Math.min(100, (target.val / curVal) * 100);
+        }
+      }
+
+      if (leg.status === 'won') { wonLegs++; hitting = true; }
+      else if (leg.status === 'lost') { lostLegs++; hitting = false; }
+      else if (hitting === true) { /* live winning */ }
+      else if (hitting === false && (isLive || isFinal)) { /* live losing */ }
+
+      const sc = hitting === true ? 'var(--green)' : hitting === false ? 'var(--red)' : 'var(--gold)';
+      const statDisplay = curVal !== null ? `${curVal} ${statLabel}` : leg.status === 'won' ? '✅' : leg.status === 'lost' ? '❌' : '—';
+      const needText = target && curVal !== null && !hitting && target.dir === 'over'
+        ? `need ${(target.val - curVal).toFixed(1)} more`
+        : target && curVal !== null && hitting && target.dir === 'over'
+        ? `✅ ${curVal}/${target.val}`
+        : '';
+
+      const progressColor = hitting === true ? 'var(--green)' : hitting === false ? 'var(--red)' : 'var(--orange)';
+      legHtml += `
+        <div class="live-leg-row">
+          <div class="live-leg-desc">
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:1px;">${leg.market || ''}</div>
+            <div>${playerName || (leg.desc || '').slice(0,40)}</div>
+            ${target ? `<div style="font-size:10px;color:var(--text3);">${target.dir === 'over' ? `Over ${target.val}` : target.dir === 'under' ? `Under ${target.val}` : `Spread ${target.val}`}</div>` : ''}
+            ${progress > 0 ? `<div class="live-leg-progress"><div class="live-leg-fill" style="width:${progress}%;background:${progressColor};"></div></div>` : ''}
+          </div>
+          <div>
+            <div class="live-leg-stat" style="color:${sc};">${statDisplay}</div>
+            <div style="font-size:9px;color:var(--text3);text-align:right;">${needText}</div>
+          </div>
+        </div>`;
+    });
+
+    // Overall bet status
+    const allWon = wonLegs === legs.length;
+    const anyLost = lostLegs > 0;
+    const overallColor = allWon ? 'var(--green)' : anyLost ? 'var(--red)' : isLive ? 'var(--orange)' : 'var(--gold)';
+    const overallBorder = allWon ? 'rgba(0,214,143,0.3)' : anyLost ? 'rgba(255,69,96,0.3)' : isLive ? 'rgba(255,107,26,0.3)' : 'var(--border)';
+
+    if (gs || legs.length) {
+      matched++;
+      const oddsInfo = bet.odds ? ` · ×${bet.odds}` : '';
+      const stakeInfo = bet.stake ? ` · ₱${formatMoney(bet.stake)}` : '';
+      html += `
+        <div class="live-bet-card" style="border-color:${overallBorder};">
+          <div class="live-bet-header">
+            <div>
+              <div class="live-bet-game">${bet.gameName || `${bet.awayTeam||''} vs ${bet.homeTeam||''}`}</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px;">${bet.betLabel||''}${oddsInfo}${stakeInfo}</div>
+            </div>
+            <div>
+              <div class="live-bet-score" style="color:${statusColor};">${statusLabel}</div>
+              ${gs && (isLive||isFinal) ? `<div style="font-family:'Barlow Condensed';font-size:18px;font-weight:900;color:var(--text);text-align:right;">${gs.awayScore}–${gs.homeScore}</div>` : ''}
+            </div>
+          </div>
+          ${legHtml}
+          <div style="display:flex;justify-content:space-between;padding:8px 14px;background:var(--bg1);border-top:1px solid var(--border);">
+            <div style="font-family:'Barlow Condensed';font-size:13px;font-weight:700;color:${overallColor};">
+              ${allWon ? '✅ ALL LEGS HIT' : anyLost ? '❌ LEG BUSTED' : isLive ? '🔴 IN PROGRESS' : '⏳ PENDING'}
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="setBetStatus('${bet.id}','won')" style="padding:4px 10px;border:1px solid rgba(0,214,143,0.3);border-radius:6px;background:var(--green-dim);color:var(--green);font-size:10px;font-weight:700;cursor:pointer;">✅ WON</button>
+              <button onclick="setBetStatus('${bet.id}','lost')" style="padding:4px 10px;border:1px solid rgba(255,69,96,0.3);border-radius:6px;background:var(--red-dim);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;">❌ LOST</button>
+            </div>
+          </div>
+        </div>`;
+    }
+  });
+
+  if (!matched) {
+    html = `
+      <div style="margin:0 16px 12px;background:var(--blue-dim);border:1px solid rgba(61,139,255,0.2);border-radius:var(--r);padding:14px 16px;">
+        <div style="font-size:12px;color:var(--blue);font-weight:700;margin-bottom:4px;">📋 ${pending.length} pending bet${pending.length>1?'s':''}</div>
+        <div style="font-size:11px;color:var(--text3);">None of your pending bets match today's NBA games.<br>Live stats show for today's matchups only.</div>
+      </div>
+      ${pending.map(b => `
+        <div class="live-bet-card">
+          <div class="live-bet-header">
+            <div>
+              <div class="live-bet-game">${b.gameName || `${b.awayTeam||''} vs ${b.homeTeam||''}`}</div>
+              <div style="font-size:10px;color:var(--text3);">${b.betLabel||''}</div>
+            </div>
+            <div style="font-size:10px;color:var(--text3);">No live game</div>
+          </div>
+        </div>`).join('')}`;
+  } else {
+    // Refresh info
+    html += `
+      <div style="padding:8px 16px 4px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:10px;color:var(--text3);" id="live-tracker-refresh-label">↻ Updates every 45s</span>
+        <button onclick="renderLiveTracker()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">REFRESH NOW</button>
+      </div>`;
+  }
+
+  html += `<div style="height:20px"></div>`;
+  el.innerHTML = html;
+}
+
+function startLiveTrackerRefresh(games, boxScores) {
+  stopLiveTrackerRefresh();
+  let countdown = 45;
+  liveTrackerRefreshTimer = setInterval(() => {
+    countdown--;
+    const lbl = document.getElementById('live-tracker-refresh-label');
+    if (lbl) lbl.textContent = `↻ Refreshing in ${countdown}s`;
+    if (countdown <= 0) {
+      countdown = 45;
+      if (trackerTab === 'live') renderLiveTracker();
+    }
+  }, 1000);
+}
+
+function stopLiveTrackerRefresh() {
+  if (liveTrackerRefreshTimer) { clearInterval(liveTrackerRefreshTimer); liveTrackerRefreshTimer = null; }
+}
+
+function updateLiveBadge() {
+  const pending = bets.filter(b => b.status === 'pending').length;
+  const badge = document.getElementById('live-bet-badge');
+  if (!badge) return;
+  if (pending > 0) {
+    badge.style.display = 'block';
+    badge.textContent = pending;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// Call updateLiveBadge whenever tracker is shown
+const _origRenderTracker = renderTracker;
+
 </script>
 </body>
 </html>
