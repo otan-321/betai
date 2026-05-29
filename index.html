@@ -1881,10 +1881,6 @@ let flowState = {};  // current builder session
 //  INIT
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  // ── CONFIG: paste your Cloudflare Worker URL here after deploying worker.js ──
-  const WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
-  // e.g. 'https://nba-proxy.yourname.workers.dev'
-
   // Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -4294,34 +4290,53 @@ async function runLiveCheck(silent = false) {
 }
 
 // ── PHT DATE HELPER ──
-// Always use Manila time so "today" is correct in the Philippines (UTC+8)
 function getPHTDateStr() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, '');
 }
 function getPHTISODate() {
-  // Returns YYYY-MM-DD in PHT
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
 }
 
-// ── CORS-PROXY ESPN FETCHER ──
-// Proxies tried in order: corsproxy.io first (most reliable), then allorigins,
-// then thingproxy as final fallback. Direct ESPN fetch is skipped because
-// GitHub Pages blocks cross-origin requests to espn.com.
+// ── CLOUDFLARE WORKER + CORS FALLBACK ──
+const WORKER_BASE = 'https://shrill-glitter-923e.germanogerale.workers.dev';
+
+function buildWorkerUrl(espnUrl) {
+  try {
+    const u = new URL(espnUrl);
+    const pathMatch = u.pathname.match(/\/nba\/(.+)/);
+    const path = pathMatch ? pathMatch[1] : 'scoreboard';
+    const dates = u.searchParams.get('dates') || '';
+    const event = u.searchParams.get('event') || '';
+    let w = WORKER_BASE + '?path=' + encodeURIComponent(path);
+    if (dates) w += '&dates=' + dates;
+    if (event) w += '&event=' + event;
+    return w;
+  } catch(e) { return null; }
+}
+
 const CORS_PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
+  function(url) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); },
 ];
 
 async function fetchWithProxy(url) {
-  // Skip direct ESPN fetch on GitHub Pages (will always be CORS-blocked)
-  // Try proxies in order
+  // 1. Try Cloudflare Worker first
+  const workerUrl = buildWorkerUrl(url);
+  if (workerUrl) {
+    try {
+      const r = await fetch(workerUrl, { cache: 'no-store' });
+      if (r.ok) {
+        const data = await r.json();
+        if (data && !data.error) return data;
+      }
+    } catch(e) {}
+  }
+  // 2. Fallback: CORS proxies
   for (const proxy of CORS_PROXIES) {
     try {
       const r = await fetch(proxy(url), { cache: 'no-store' });
       if (r.ok) {
         const text = await r.text();
-        // allorigins wraps in {contents:...} for some endpoints
         try {
           const parsed = JSON.parse(text);
           if (parsed && parsed.contents && typeof parsed.contents === 'string') {
@@ -4332,7 +4347,7 @@ async function fetchWithProxy(url) {
       }
     } catch(e) {}
   }
-  throw new Error('Network unavailable — all proxies failed');
+  throw new Error('Network unavailable');
 }
 
 // New: use the pre-selected game from schedule picker
