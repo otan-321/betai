@@ -1209,7 +1209,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <div class="tracker-tabs">
       <button class="tracker-tab active" id="ttab-all" onclick="setTrackerTab('all')">ALL BETS</button>
       <button class="tracker-tab" id="ttab-live" onclick="setTrackerTab('live')">
-        ⚡ BET CHECKS
+        🔴 LIVE TRACKER
         <span class="live-badge" id="live-bet-badge" style="display:none">0</span>
       </button>
     </div>
@@ -1221,7 +1221,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
       <div style="height:4px"></div>
       <div id="tracker-list"></div>
     </div>
-    <!-- BET CHECKS panel -->
+    <!-- LIVE TRACKER panel -->
     <div id="tracker-live-panel" style="display:none;">
       <div id="live-tracker-content"></div>
     </div>
@@ -1881,6 +1881,10 @@ let flowState = {};  // current builder session
 //  INIT
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  // ── CONFIG: paste your Cloudflare Worker URL here after deploying worker.js ──
+  const WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
+  // e.g. 'https://nba-proxy.yourname.workers.dev'
+
   // Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -2449,11 +2453,10 @@ async function fetchSmartSlipGames() {
   ssState.loading = true;
   const today = new Date();
   const dates = [];
-  const phtTodayStr = getPHTDateStr();
   for (let i = 0; i <= 3; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, ''));
+    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
   }
   let allGames = [];
   try {
@@ -2468,7 +2471,7 @@ async function fetchSmartSlipGames() {
   } catch(e) {}
   ssState.loading = false;
 
-  const todayStr = phtTodayStr;
+  const todayStr = today.toISOString().split('T')[0].replace(/-/g,'');
   const out = [];
   allGames.forEach(g => {
     const comp = g.competitions?.[0];
@@ -3898,7 +3901,7 @@ let liveState = {
   mode: 'schedule',   // 'schedule' | 'slip'
   liveTab: 'slip',    // 'slip' | 'boxscore'
   rawText: '',
-  gameDate: getPHTISODate(),
+  gameDate: new Date().toISOString().split('T')[0],
   selectedGame: null, // { id, date, awayAbbr, homeAbbr, awayName, homeName, statusName, completed, inProgress, tipoff }
   parsedLegs: [],
   results: [],
@@ -3978,11 +3981,10 @@ async function renderSchedulePicker() {
 
   const today = new Date();
   const dates = [];
-  const phtToday = getPHTDateStr(); // YYYYMMDD in Manila time
   for (let i = -7; i <= 7; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, ''));
+    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
   }
 
   // Fetch all dates in parallel, collect games
@@ -4006,7 +4008,7 @@ async function renderSchedulePicker() {
     }
   }
 
-  const todayStr = phtToday;
+  const todayStr = today.toISOString().split('T')[0].replace(/-/g,'');
   const pastGames = [], todayGames = [], upcomingGames = [];
 
   allGames.forEach(g => {
@@ -4289,62 +4291,21 @@ async function runLiveCheck(silent = false) {
   }
 }
 
-// ── PHT DATE HELPER ──
-function getPHTDateStr() {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, '');
-}
-function getPHTISODate() {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
-}
-
-// ── CLOUDFLARE WORKER + CORS FALLBACK ──
-const WORKER_BASE = 'https://shrill-glitter-923e.germanogerale.workers.dev';
-
-function buildWorkerUrl(espnUrl) {
-  try {
-    const u = new URL(espnUrl);
-    const pathMatch = u.pathname.match(/\/nba\/(.+)/);
-    const path = pathMatch ? pathMatch[1] : 'scoreboard';
-    const dates = u.searchParams.get('dates') || '';
-    const event = u.searchParams.get('event') || '';
-    let w = WORKER_BASE + '?path=' + encodeURIComponent(path);
-    if (dates) w += '&dates=' + dates;
-    if (event) w += '&event=' + event;
-    return w;
-  } catch(e) { return null; }
-}
-
+// ── CORS-PROXY ESPN FETCHER ──
 const CORS_PROXIES = [
-  function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
-  function(url) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); },
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
 ];
 
 async function fetchWithProxy(url) {
-  // 1. Try Cloudflare Worker first
-  const workerUrl = buildWorkerUrl(url);
-  if (workerUrl) {
-    try {
-      const r = await fetch(workerUrl, { cache: 'no-store' });
-      if (r.ok) {
-        const data = await r.json();
-        if (data && !data.error) return data;
-      }
-    } catch(e) {}
-  }
-  // 2. Fallback: CORS proxies
+  try {
+    const r = await fetch(url, { mode: 'cors', cache: 'no-store' });
+    if (r.ok) return await r.json();
+  } catch(e) {}
   for (const proxy of CORS_PROXIES) {
     try {
       const r = await fetch(proxy(url), { cache: 'no-store' });
-      if (r.ok) {
-        const text = await r.text();
-        try {
-          const parsed = JSON.parse(text);
-          if (parsed && parsed.contents && typeof parsed.contents === 'string') {
-            return JSON.parse(parsed.contents);
-          }
-          return parsed;
-        } catch(e2) { continue; }
-      }
+      if (r.ok) return await r.json();
     } catch(e) {}
   }
   throw new Error('Network unavailable');
@@ -4352,8 +4313,7 @@ async function fetchWithProxy(url) {
 
 // New: use the pre-selected game from schedule picker
 async function fetchNBAStatsByGameId(legs, selectedGame) {
-  // date is stored as YYYYMMDD; fallback to PHT date
-  const dateStr = (selectedGame.date || getPHTDateStr()).replace(/-/g, '');
+  const dateStr = (selectedGame.date || new Date().toISOString().split("T")[0]);
   const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
   const games = data.events || [];
   const targetGame = games.find(g => g.id === selectedGame.id) || games[0];
@@ -4373,7 +4333,7 @@ async function fetchNBAStatsByGameId(legs, selectedGame) {
 }
 
 async function fetchNBAStats(legs, mode, gameDate) {
-  const dateStr = (gameDate || getPHTISODate()).replace(/-/g,"");
+  const dateStr = (gameDate||new Date().toISOString().split("T")[0]).replace(/-/g,"");
   const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
   const games = data.events || [];
   if (games.length === 0) throw new Error("No games found for this date");
@@ -4784,18 +4744,7 @@ function saveLiveCheckToTracker() {
     odds: odds||null,
     stake: stake||null,
     status: allWon?'won':anyLost?'lost':'pending',
-    date: new Date().toISOString(),
-    _checkedAt: new Date().toISOString(),
-    _selectedGame: sg || null,
-    _liveResults: liveState.results.map(r => ({
-      leg: { desc: r.leg?.desc, market: r.leg?.market },
-      playerName: r.playerName || null,
-      statType: r.statType || null,
-      target: r.target || null,
-      currentVal: r.currentVal !== undefined ? r.currentVal : null,
-      status: r.status || 'pending',
-      hitting: r.hitting || false,
-    }))
+    date: new Date().toISOString()
   };
   bets.unshift(bet);
   saveBets();
@@ -4929,12 +4878,12 @@ async function fetchAIBetGames() {
   if (aiBetState.games) return aiBetState.games;
   aiBetState.loading = true;
   const today = new Date();
-  // Fetch today + next 3 days (using PHT timezone)
+  // Fetch today + next 3 days
   const dates = [];
   for (let i = 0; i <= 3; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, ''));
+    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
   }
   let allGames = [];
   try {
@@ -5416,14 +5365,8 @@ function renderBoxScore(data, g) {
     periodLabel = st?.type?.shortDetail || st?.displayClock || '';
   } catch(e) {}
 
-  // Refresh inProgress from data header in case game state changed
-  let isLive = g.inProgress;
-  let isFinal = g.completed;
-  try {
-    const hdrStatus = data.header?.competitions?.[0]?.status?.type?.name || '';
-    if (hdrStatus === 'STATUS_IN_PROGRESS' || hdrStatus === 'STATUS_HALFTIME' || hdrStatus === 'STATUS_END_PERIOD') isLive = true;
-    if (data.header?.competitions?.[0]?.status?.type?.completed) { isFinal = true; isLive = false; }
-  } catch(e) {}
+  const isLive = g.inProgress;
+  const isFinal = g.completed;
 
   let html = `
     <div class="bs-score-bar">
@@ -5483,9 +5426,7 @@ function renderBoxScore(data, g) {
     (tp.statistics || []).forEach(sg => {
       const labels = (sg.labels || []).map(l => l.toLowerCase());
       (sg.athletes || []).forEach(ath => {
-        // Include all athletes that have at least one non-zero, non-null stat
-        if (!ath.stats || ath.stats.length === 0) return;
-        if (ath.stats.every(s => !s || s === '0' || s === '--' || s === '0.0')) return;
+        if (!ath.stats || ath.stats.every(s => !s || s === '0' || s === '--')) return;
         const sm = {};
         labels.forEach((lb, i) => { sm[lb] = parseFloat(ath.stats[i]) || 0; });
         allAthletes.push({
@@ -5652,91 +5593,51 @@ function setTrackerTab(tab) {
   }
 }
 
-function renderLiveTracker() {
+async function renderLiveTracker() {
   const el = document.getElementById('live-tracker-content');
   if (!el) return;
-  stopLiveTrackerRefresh();
 
-  // Bet Checks = bets saved from Live Check that have leg-level results stored
-  const checks = bets.filter(b => b._liveResults && b._liveResults.length > 0);
-
-  if (!checks.length) {
-    el.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">⚡</div>
-        <div class="empty-text" style="line-height:1.8;">
-          No saved bet checks yet.<br>
-          <strong style="color:var(--orange);">How to use:</strong><br>
-          Go to <strong>Live Check</strong> → pick a game → paste your bet slip → tap <strong>CHECK BET</strong> → tap <strong>SAVE TO TRACKER</strong>.
-        </div>
-        <button onclick="showPage('live')" style="margin-top:16px;padding:11px 24px;border:none;border-radius:var(--r-sm);background:var(--orange);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;cursor:pointer;">⚡ GO TO LIVE CHECK</button>
-      </div>`;
+  // Find pending bets
+  const pending = bets.filter(b => b.status === 'pending');
+  if (!pending.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No pending bets to track.<br>Add bets in the Builder or Live Check tabs.</div></div>`;
     updateLiveBadge();
     return;
   }
 
-  let html = '<div style="padding:8px 16px 4px;font-size:11px;color:var(--text3);">Saved from Live Check. Tap a check to re-run it in Live Check.</div>';
+  el.innerHTML = `<div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Fetching live games…</span></div>`;
 
-  checks.forEach(bet => {
-    const results = bet._liveResults || [];
-    const wonLegs = results.filter(r => r.status === 'won').length;
-    const lostLegs = results.filter(r => r.status === 'lost').length;
-    const pendLegs = results.length - wonLegs - lostLegs;
-    const allWon = wonLegs === results.length && results.length > 0;
-    const anyLost = lostLegs > 0;
-    const overallColor = allWon ? 'var(--green)' : anyLost ? 'var(--red)' : 'var(--gold)';
-    const overallBorder = allWon ? 'rgba(0,214,143,0.3)' : anyLost ? 'rgba(255,69,96,0.3)' : 'var(--border)';
-    const savedAt = bet._checkedAt ? new Date(bet._checkedAt).toLocaleString('en-PH', { timeZone:'Asia/Manila', month:'short', day:'numeric', hour:'numeric', minute:'2-digit', hour12:true }) : formatDate(bet.date);
+  // Fetch today's games
+  try {
+    const todayStr = new Date().toISOString().split('T')[0].replace(/-/g,'');
+    const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${todayStr}`);
+    const games = data.events || [];
 
-    let legsHtml = '';
-    results.forEach(r => {
-      const sc = r.status==='won'?'var(--green)':r.status==='lost'?'var(--red)':r.status==='live'?'var(--orange)':'var(--gold)';
-      const sl = r.status==='won'?'✅':r.status==='lost'?'❌':r.status==='live'?'🔴':'⏳';
-      const cur = r.currentVal !== undefined && r.currentVal !== null ? r.currentVal : '';
-      const tgt = r.target ? (r.target.dir==='over'?`Over ${r.target.val}`:r.target.dir==='under'?`Under ${r.target.val}`:`Spread ${r.target.val}`) : '';
-      const statType = r.statType || 'points';
-      const statLabel = statType==='rebounds'?'REB':statType==='assists'?'AST':statType==='threesMade'?'3PM':statType==='gameTotal'?'TOT':statType==='spread'?'MRG':'PTS';
-      const needText = r.target && cur !== '' && r.status!=='won' && r.status!=='lost' && r.target.dir==='over'
-        ? `need ${(r.target.val - cur).toFixed(1)} more` : '';
-      legsHtml += `
-        <div class="live-leg-row">
-          <div class="live-leg-desc">
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">${r.leg?.market||''}</div>
-            <div style="font-size:12px;">${r.playerName||''} <span style="color:var(--text3);">${tgt}</span></div>
-            ${r.currentVal!==undefined&&r.currentVal!==null ? `<div style="font-size:10px;color:var(--text3);">${needText}</div>` : ''}
-          </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div class="live-leg-stat" style="color:${sc};">${sl} ${cur !== '' ? cur+' '+statLabel : ''}</div>
-          </div>
-        </div>`;
+    // For each live/recent game, fetch box score
+    const liveGames = games.filter(g => {
+      const st = g.competitions?.[0]?.status?.type;
+      return st?.name === 'STATUS_IN_PROGRESS' || st?.completed;
     });
 
-    const oddsInfo = bet.odds ? ` · ×${bet.odds}` : '';
-    const stakeInfo = bet.stake ? ` · ₱${formatMoney(bet.stake)}` : '';
+    // Fetch box scores for live games (limit 3 to avoid rate limits)
+    const boxScores = {};
+    await Promise.all(liveGames.slice(0,4).map(async g => {
+      try {
+        const bs = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
+        boxScores[g.id] = bs;
+      } catch(e) {}
+    }));
 
-    html += `
-      <div class="live-bet-card" style="border-color:${overallBorder};">
-        <div class="live-bet-header">
-          <div>
-            <div class="live-bet-game">${bet.gameName || 'Bet Check'}</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;">${savedAt}${oddsInfo}${stakeInfo}</div>
-          </div>
-          <div style="font-family:'Barlow Condensed';font-size:13px;font-weight:700;color:${overallColor};text-align:right;">
-            ${allWon?'✅ ALL HIT':anyLost?'❌ BUSTED':'⏳ PENDING'}<br>
-            <span style="font-size:10px;color:var(--text3);">${wonLegs}W · ${lostLegs}L · ${pendLegs}P</span>
-          </div>
-        </div>
-        ${legsHtml}
-        <div style="display:flex;justify-content:space-between;padding:8px 14px;background:var(--bg1);border-top:1px solid var(--border);gap:6px;">
-          <button onclick="reRunCheck('${bet.id}')" style="flex:1;padding:5px 10px;border:1px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;">↻ RE-CHECK</button>
-          <button onclick="setBetStatus('${bet.id}','won')" style="padding:5px 10px;border:1px solid rgba(0,214,143,0.3);border-radius:6px;background:var(--green-dim);color:var(--green);font-size:10px;font-weight:700;cursor:pointer;">✅ WON</button>
-          <button onclick="setBetStatus('${bet.id}','lost')" style="padding:5px 10px;border:1px solid rgba(255,69,96,0.3);border-radius:6px;background:var(--red-dim);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;">❌ LOST</button>
-        </div>
-      </div>`;
-  });
+    renderLiveTrackerBets(pending, games, boxScores);
 
-  html += '<div style="height:20px"></div>';
-  el.innerHTML = html;
+    // Start auto-refresh every 45s if any live games
+    const hasLive = games.some(g => g.competitions?.[0]?.status?.type?.name === 'STATUS_IN_PROGRESS');
+    if (hasLive) startLiveTrackerRefresh(games, boxScores);
+    else stopLiveTrackerRefresh();
+
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Couldn't load live data.<br><span style="color:var(--orange);cursor:pointer;" onclick="renderLiveTracker()">Tap to retry</span></div></div>`;
+  }
   updateLiveBadge();
 }
 
@@ -5778,7 +5679,7 @@ function renderLiveTrackerBets(pending, games, boxScores) {
       homeAbbr: home?.team?.abbreviation,
       awayScore: away?.score || '0',
       homeScore: home?.score || '0',
-      inProgress: st?.name === 'STATUS_IN_PROGRESS' || st?.name === 'STATUS_HALFTIME' || st?.name === 'STATUS_END_PERIOD',
+      inProgress: st?.name === 'STATUS_IN_PROGRESS',
       completed: st?.completed,
       period: comp?.status?.displayClock || st?.shortDetail || '',
     };
@@ -5866,19 +5767,7 @@ function renderLiveTrackerBets(pending, games, boxScores) {
     });
 
     // Only use match if we have at least some confidence (score >= 2)
-    // If still no match but games exist, fall back to first game so bets always show
-    if (bestScore < 2) {
-      if (games.length > 0) {
-        // Try to grab a game that's live or recently completed, else the first game
-        const fallback = games.find(g => {
-          const st = g.competitions?.[0]?.status?.type;
-          return st?.name === 'STATUS_IN_PROGRESS' || st?.completed;
-        }) || games[0];
-        matchedGame = { ...scoreMap[fallback.id], id: fallback.id };
-      } else {
-        matchedGame = null;
-      }
-    }
+    if (bestScore < 2) matchedGame = null;
 
     const gs = matchedGame;
     const isLive = gs?.inProgress;
@@ -6055,37 +5944,13 @@ function stopLiveTrackerRefresh() {
   if (liveTrackerRefreshTimer) { clearInterval(liveTrackerRefreshTimer); liveTrackerRefreshTimer = null; }
 }
 
-function reRunCheck(betId) {
-  const bet = bets.find(b => b.id === betId);
-  if (!bet || !bet._liveResults) return;
-  // Restore liveState from the saved check
-  liveState.results = bet._liveResults.map(r => ({
-    leg: { desc: r.leg?.desc || '', market: r.leg?.market || '' },
-    playerName: r.playerName || '',
-    statType: r.statType || 'points',
-    target: r.target || null,
-    currentVal: r.currentVal,
-    status: r.status || 'pending',
-    hitting: r.hitting || false,
-    label: r.currentVal !== null && r.currentVal !== undefined ? String(r.currentVal) : '—',
-    subLabel: '',
-  }));
-  liveState.rawText = bet.legs.map(l => l.desc || '').join('\n');
-  // Try to find the game from the bet name
-  liveState.selectedGame = bet._selectedGame || null;
-  liveState.mode = 'slip';
-  showPage('live');
-  setTimeout(() => renderSlipView(), 50);
-  showToast('↻ Re-running check in Live Check', '');
-}
-
 function updateLiveBadge() {
-  const checks = bets.filter(b => b._liveResults && b._liveResults.length > 0).length;
+  const pending = bets.filter(b => b.status === 'pending').length;
   const badge = document.getElementById('live-bet-badge');
   if (!badge) return;
-  if (checks > 0) {
+  if (pending > 0) {
     badge.style.display = 'block';
-    badge.textContent = checks;
+    badge.textContent = pending;
   } else {
     badge.style.display = 'none';
   }
