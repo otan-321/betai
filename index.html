@@ -5421,51 +5421,211 @@ function renderBoxScore(data, g) {
   const el = document.getElementById('box-score-content');
   if (!el) return;
 
-  const comp = data.header?.competitions?.[0] || data.boxscore?.teams?.[0];
   const teams = data.boxscore?.teams || [];
   const players = data.boxscore?.players || [];
 
-  // Score bar
+  // ── Pull scores, period, clock from header ──
   let awayScore = g.awayScore || '—', homeScore = g.homeScore || '—';
-  let periodLabel = '';
+  let periodLabel = '', clockLabel = '';
+  let quarterScores = { away: [], home: [] };
+  let largestLead = 0, leadChanges = 0;
+
   try {
     const hdr = data.header?.competitions?.[0];
     const st = hdr?.status;
-    awayScore = hdr?.competitors?.find(c=>c.homeAway==='away')?.score ?? awayScore;
-    homeScore = hdr?.competitors?.find(c=>c.homeAway==='home')?.score ?? homeScore;
-    periodLabel = st?.type?.shortDetail || st?.displayClock || '';
+    const awayComp = hdr?.competitors?.find(c => c.homeAway === 'away');
+    const homeComp = hdr?.competitors?.find(c => c.homeAway === 'home');
+    awayScore = awayComp?.score ?? awayScore;
+    homeScore = homeComp?.score ?? homeScore;
+    periodLabel = st?.type?.shortDetail || '';
+    clockLabel = st?.displayClock || '';
+
+    // Quarter-by-quarter line scores
+    const awayLines = awayComp?.linescores || [];
+    const homeLines = homeComp?.linescores || [];
+    awayLines.forEach(ls => quarterScores.away.push(ls.displayValue || ls.value || '—'));
+    homeLines.forEach(ls => quarterScores.home.push(ls.displayValue || ls.value || '—'));
+
+    // Largest lead from plays if available
+    const plays = data.plays || data.playByPlay?.plays || [];
+    plays.forEach(pl => {
+      const lead = Math.abs((parseInt(pl.homeScore)||0) - (parseInt(pl.awayScore)||0));
+      if (lead > largestLead) largestLead = lead;
+    });
+    if (data.header?.competitions?.[0]?.largestLead) largestLead = data.header.competitions[0].largestLead;
+    if (data.header?.competitions?.[0]?.leadChanges) leadChanges = data.header.competitions[0].leadChanges;
   } catch(e) {}
 
   const isLive = g.inProgress;
   const isFinal = g.completed;
+  const awayInt = parseInt(awayScore) || 0;
+  const homeInt = parseInt(homeScore) || 0;
+  const totalPts = awayInt + homeInt;
 
+  // ── Build quarter label row ──
+  const maxQ = Math.max(quarterScores.away.length, quarterScores.home.length, 4);
+  const qLabels = [];
+  for (let i = 0; i < maxQ; i++) {
+    qLabels.push(i < 4 ? `Q${i+1}` : `OT${i-3}`);
+  }
+
+  function qtCell(val, isCurrent, isTotal) {
+    const color = isTotal ? 'color:var(--orange);font-weight:900;' : isCurrent ? 'color:var(--text);font-weight:700;' : 'color:var(--text2);';
+    return `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;text-align:center;padding:2px 0;${color}">${val !== undefined && val !== '' ? val : '—'}</div>`;
+  }
+
+  const currentQIdx = Math.max(0, quarterScores.away.length - 1);
+
+  let qHeaderRow = `<div style="display:grid;grid-template-columns:2fr ${qLabels.map(()=>'1fr').join(' ')} 1.2fr;gap:2px;padding:0 2px;">`;
+  qHeaderRow += `<div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">TEAM</div>`;
+  qLabels.forEach(l => { qHeaderRow += `<div style="font-size:9px;color:var(--text3);text-align:center;text-transform:uppercase;letter-spacing:0.5px;">${l}</div>`; });
+  qHeaderRow += `<div style="font-size:9px;color:var(--text3);text-align:center;text-transform:uppercase;letter-spacing:0.5px;">TOT</div>`;
+  qHeaderRow += `</div>`;
+
+  let qAwayRow = `<div style="display:grid;grid-template-columns:2fr ${qLabels.map(()=>'1fr').join(' ')} 1.2fr;gap:2px;padding:0 2px;margin-top:3px;">`;
+  qAwayRow += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--text);">${g.awayAbbr}</div>`;
+  qLabels.forEach((_, i) => { qAwayRow += qtCell(quarterScores.away[i], i === currentQIdx && isLive, false); });
+  qAwayRow += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;color:var(--orange);text-align:center;">${awayScore}</div>`;
+  qAwayRow += `</div>`;
+
+  let qHomeRow = `<div style="display:grid;grid-template-columns:2fr ${qLabels.map(()=>'1fr').join(' ')} 1.2fr;gap:2px;padding:0 2px;margin-top:2px;">`;
+  qHomeRow += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--text);">${g.homeAbbr}</div>`;
+  qLabels.forEach((_, i) => { qHomeRow += qtCell(quarterScores.home[i], i === currentQIdx && isLive, false); });
+  qHomeRow += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;color:${homeInt >= awayInt ? 'var(--orange)':'var(--text3)'};text-align:center;">${homeScore}</div>`;
+  qHomeRow += `</div>`;
+
+  // ── Score bar with quarter table ──
   let html = `
-    <div class="bs-score-bar">
-      <div class="bs-score-team">
-        <div class="bs-score-val">${awayScore}</div>
-        <div class="bs-score-abbr">${g.awayAbbr}</div>
+    <div class="bs-score-bar" style="flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <div class="bs-score-team">
+          <div class="bs-score-val">${awayScore}</div>
+          <div class="bs-score-abbr">${g.awayAbbr}</div>
+        </div>
+        <div style="text-align:center;">
+          ${isLive
+            ? `<div class="bs-period"><span class="live-dot"></span> ${periodLabel||'LIVE'} ${clockLabel?'· '+clockLabel:''}</div>`
+            : isFinal
+              ? `<div class="bs-period" style="color:var(--text3);border-color:var(--border);">FINAL</div>`
+              : `<div class="bs-period" style="color:var(--blue);border-color:rgba(61,139,255,0.3);">UPCOMING</div>`}
+          <div style="font-size:9px;color:var(--text3);margin-top:4px;letter-spacing:0.5px;">TOTAL: ${totalPts}</div>
+        </div>
+        <div class="bs-score-team">
+          <div class="bs-score-val">${homeScore}</div>
+          <div class="bs-score-abbr">${g.homeAbbr}</div>
+        </div>
       </div>
-      <div style="text-align:center;">
-        ${isLive ? `<div class="bs-period"><span class="live-dot"></span> ${periodLabel || 'LIVE'}</div>` :
-          isFinal ? `<div class="bs-period" style="color:var(--text3);border-color:var(--border);">FINAL</div>` :
-          `<div class="bs-period" style="color:var(--blue);border-color:rgba(61,139,255,0.3);">UPCOMING</div>`}
-        <div style="font-size:9px;color:var(--text3);margin-top:4px;letter-spacing:0.5px;">TOTAL: ${(parseInt(awayScore)||0)+(parseInt(homeScore)||0)}</div>
-      </div>
-      <div class="bs-score-team">
-        <div class="bs-score-val">${homeScore}</div>
-        <div class="bs-score-abbr">${g.homeAbbr}</div>
-      </div>
+      ${quarterScores.away.length > 0 ? `
+      <div style="width:100%;border-top:1px solid var(--border);padding-top:8px;">
+        ${qHeaderRow}${qAwayRow}${qHomeRow}
+      </div>` : ''}
     </div>`;
 
-  // Filter buttons for stat highlight
+  // ── Momentum bar (only if game has started) ──
+  if (awayInt > 0 || homeInt > 0) {
+    const totalForBar = awayInt + homeInt || 1;
+    const awayPct = Math.round((awayInt / totalForBar) * 100);
+    const homePct = 100 - awayPct;
+    const leadTeam = awayInt >= homeInt ? g.awayAbbr : g.homeAbbr;
+    const leadAmt = Math.abs(awayInt - homeInt);
+    html += `
+      <div style="margin:0 16px 4px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 0 6px;">MOMENTUM</div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:10px;font-weight:700;color:var(--blue);">${g.awayAbbr} ${awayInt >= homeInt ? `+${leadAmt} lead` : ''}</span>
+            <span style="font-size:10px;font-weight:700;color:var(--orange);">${g.homeAbbr} ${homeInt > awayInt ? `+${leadAmt} lead` : ''}</span>
+          </div>
+          <div style="width:100%;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;display:flex;">
+            <div style="width:${awayPct}%;background:var(--blue);opacity:0.8;border-radius:3px 0 0 3px;transition:width 0.5s;"></div>
+            <div style="width:${homePct}%;background:var(--orange);opacity:0.8;border-radius:0 3px 3px 0;transition:width 0.5s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:5px;">
+            <span style="font-size:10px;color:var(--text3);">${largestLead > 0 ? `Largest lead: +${largestLead}` : 'Score share by pts'}</span>
+            <span style="font-size:10px;color:var(--text3);">${leadChanges > 0 ? `${leadChanges} lead changes` : `${awayPct}% – ${homePct}%`}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Team Stats Comparison ──
+  if (teams.length >= 2) {
+    const awayTeam = teams.find(t => t.team?.homeAway === 'away') || teams[0];
+    const homeTeam = teams.find(t => t.team?.homeAway === 'home') || teams[1];
+
+    function getTeamStat(team, key) {
+      const stats = team.statistics || [];
+      const s = stats.find(x => x.name === key || x.abbreviation === key || (x.label||'').toLowerCase() === key.toLowerCase());
+      return s?.displayValue || s?.value || null;
+    }
+
+    const statRows = [
+      { label: 'FG%',        key: 'fieldGoalPct',        higherBetter: true  },
+      { label: '3P%',        key: 'threePointPct',        higherBetter: true  },
+      { label: 'FT%',        key: 'freeThrowPct',         higherBetter: true  },
+      { label: 'Rebounds',   key: 'totalRebounds',        higherBetter: true  },
+      { label: 'Turnovers',  key: 'turnovers',            higherBetter: false },
+      { label: 'Paint Pts',  key: 'pointsInPaint',        higherBetter: true  },
+      { label: 'Fast Break', key: 'fastBreakPoints',      higherBetter: true  },
+    ];
+
+    const teamStatRows = statRows.map(row => {
+      const aVal = getTeamStat(awayTeam, row.key);
+      const hVal = getTeamStat(homeTeam, row.key);
+      if (!aVal && !hVal) return '';
+      const aNum = parseFloat(aVal) || 0;
+      const hNum = parseFloat(hVal) || 0;
+      const total = aNum + hNum || 1;
+      const aPct = Math.round((aNum / total) * 100);
+      const hPct = 100 - aPct;
+      const aWins = row.higherBetter ? aNum >= hNum : aNum <= hNum;
+      const hWins = row.higherBetter ? hNum > aNum : hNum < aNum;
+      const aColor = aWins ? 'var(--green)' : 'var(--text2)';
+      const hColor = hWins ? 'var(--green)' : 'var(--text2)';
+      const aDisplay = aVal || '0';
+      const hDisplay = hVal || '0';
+      return `
+        <div style="display:grid;grid-template-columns:1fr 1.8fr 1fr;padding:6px 12px;border-top:1px solid rgba(255,255,255,0.05);align-items:center;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${aColor};">${aDisplay}</div>
+          <div style="text-align:center;">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;">${row.label}</div>
+            <div style="width:100%;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;display:flex;">
+              <div style="width:${aPct}%;background:var(--blue);opacity:0.7;"></div>
+              <div style="width:${hPct}%;background:var(--orange);opacity:0.7;"></div>
+            </div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${hColor};text-align:right;">${hDisplay}</div>
+        </div>`;
+    }).filter(Boolean).join('');
+
+    if (teamStatRows) {
+      html += `
+        <div style="margin:0 16px 4px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 0 6px;">TEAM STATS</div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;">
+            <div style="display:grid;grid-template-columns:1fr 1.8fr 1fr;background:var(--bg1);padding:6px 12px;">
+              <div style="font-size:10px;font-weight:800;color:var(--blue);">${g.awayAbbr}</div>
+              <div></div>
+              <div style="font-size:10px;font-weight:800;color:var(--orange);text-align:right;">${g.homeAbbr}</div>
+            </div>
+            ${teamStatRows}
+          </div>
+        </div>`;
+    }
+  }
+
+  // ── Stat focus tabs ──
   html += `
-    <div style="padding:0 16px 8px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;">
-      <button class="bs-tab active" id="bs-focus-pts" onclick="setBoxFocus('pts',this)">PTS</button>
-      <button class="bs-tab" id="bs-focus-reb" onclick="setBoxFocus('reb',this)">REB</button>
-      <button class="bs-tab" id="bs-focus-ast" onclick="setBoxFocus('ast',this)">AST</button>
-      <button class="bs-tab" id="bs-focus-3pm" onclick="setBoxFocus('3pm',this)">3PM</button>
-      <button class="bs-tab" id="bs-focus-stl" onclick="setBoxFocus('stl',this)">STL</button>
-      <button class="bs-tab" id="bs-focus-blk" onclick="setBoxFocus('blk',this)">BLK</button>
+    <div style="margin:4px 0 0;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 16px 6px;">PLAYER STATS</div>
+      <div style="padding:0 16px 8px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;">
+        <button class="bs-tab active" id="bs-focus-pts" onclick="setBoxFocus('pts',this)">PTS</button>
+        <button class="bs-tab" id="bs-focus-reb" onclick="setBoxFocus('reb',this)">REB</button>
+        <button class="bs-tab" id="bs-focus-ast" onclick="setBoxFocus('ast',this)">AST</button>
+        <button class="bs-tab" id="bs-focus-3pm" onclick="setBoxFocus('3pm',this)">3PM</button>
+        <button class="bs-tab" id="bs-focus-stl" onclick="setBoxFocus('stl',this)">STL</button>
+        <button class="bs-tab" id="bs-focus-blk" onclick="setBoxFocus('blk',this)">BLK</button>
+      </div>
     </div>`;
 
   if (!players.length) {
@@ -5474,22 +5634,19 @@ function renderBoxScore(data, g) {
     return;
   }
 
-  html += `<div id="box-score-table">`;
-
-  // Column headers
+  html += `<div id="box-score-table"><div class="box-score-wrap">`;
   html += `
-    <div class="box-score-wrap">
-      <div class="bs-header">
-        <div class="bs-col-head">PLAYER</div>
-        <div class="bs-col-head">PTS</div>
-        <div class="bs-col-head">REB</div>
-        <div class="bs-col-head">AST</div>
-        <div class="bs-col-head">3PM</div>
-        <div class="bs-col-head">STL</div>
-        <div class="bs-col-head">BLK</div>
-      </div>`;
+    <div class="bs-header">
+      <div class="bs-col-head">PLAYER</div>
+      <div class="bs-col-head">PTS</div>
+      <div class="bs-col-head">REB</div>
+      <div class="bs-col-head">AST</div>
+      <div class="bs-col-head">3PM</div>
+      <div class="bs-col-head">STL</div>
+      <div class="bs-col-head">BLK</div>
+    </div>`;
 
-  // Collect leaders per stat for highlighting
+  // Build athlete list with minutes for on-pace calc
   const allAthletes = [];
   players.forEach(tp => {
     const teamAbbr = tp.team?.abbreviation || '';
@@ -5500,6 +5657,15 @@ function renderBoxScore(data, g) {
         if (!ath.stats || ath.stats.every(s => !s || s === '0' || s === '--')) return;
         const sm = {};
         labels.forEach((lb, i) => { sm[lb] = parseFloat(ath.stats[i]) || 0; });
+        // Parse minutes played as float (e.g. "27:30" → 27.5)
+        let minPlayed = 0;
+        const minRaw = ath.stats[labels.indexOf('min')] || ath.stats[labels.indexOf('minutes')] || '';
+        if (typeof minRaw === 'string' && minRaw.includes(':')) {
+          const [m, s] = minRaw.split(':');
+          minPlayed = parseInt(m) + parseInt(s||0)/60;
+        } else {
+          minPlayed = sm['min'] || sm['minutes'] || 0;
+        }
         allAthletes.push({
           name: ath.athlete?.displayName || '—',
           pos: ath.athlete?.position?.abbreviation || '',
@@ -5510,23 +5676,51 @@ function renderBoxScore(data, g) {
           threepm: sm['3pm'] || sm['fgm3'] || sm['3pt'] || 0,
           stl: sm['stl'] || sm['steals'] || 0,
           blk: sm['blk'] || sm['blocks'] || 0,
-          min: sm['min'] || 0,
+          min: minPlayed,
+          minDisplay: minRaw || (minPlayed ? Math.round(minPlayed)+'m' : ''),
         });
       });
     });
   });
 
-  // Find leaders
   const leaders = {
-    pts: Math.max(...allAthletes.map(a=>a.pts)),
-    reb: Math.max(...allAthletes.map(a=>a.reb)),
-    ast: Math.max(...allAthletes.map(a=>a.ast)),
-    threepm: Math.max(...allAthletes.map(a=>a.threepm)),
-    stl: Math.max(...allAthletes.map(a=>a.stl)),
-    blk: Math.max(...allAthletes.map(a=>a.blk)),
+    pts: Math.max(1, ...allAthletes.map(a=>a.pts)),
+    reb: Math.max(1, ...allAthletes.map(a=>a.reb)),
+    ast: Math.max(1, ...allAthletes.map(a=>a.ast)),
+    threepm: Math.max(1, ...allAthletes.map(a=>a.threepm)),
+    stl: Math.max(1, ...allAthletes.map(a=>a.stl)),
+    blk: Math.max(1, ...allAthletes.map(a=>a.blk)),
   };
 
-  // Group by team
+  // Build bet leg lookup: playerName → { target, statType }
+  const betLegMap = {};
+  (liveState.results || []).forEach(r => {
+    if (r.playerName) betLegMap[normName(r.playerName)] = r;
+  });
+  (liveState.parsedLegs || []).forEach(leg => {
+    const pn = extractPlayerName(leg.desc || '');
+    if (pn) {
+      const key = normName(pn);
+      if (!betLegMap[key]) betLegMap[key] = { leg, statType: detectStatType(leg.market||''), target: parseTarget(leg.desc||''), playerName: pn };
+    }
+  });
+
+  // Estimate game minutes elapsed for on-pace calc
+  // NBA game = 48 min; OT = +5 each
+  const numPeriods = quarterScores.away.length;
+  let gameMinElapsed = 0;
+  if (isFinal) {
+    gameMinElapsed = 48 + Math.max(0, numPeriods - 4) * 5;
+  } else if (isLive) {
+    // Parse clock from periodLabel e.g. "3rd 4:22"
+    let clockSecs = 0;
+    const clockMatch = clockLabel.match(/(\d+):(\d+)/);
+    if (clockMatch) clockSecs = parseInt(clockMatch[1])*60 + parseInt(clockMatch[2]);
+    const periodMins = numPeriods <= 4 ? 12 : 5;
+    const elapsedThisQtr = periodMins - (clockSecs / 60);
+    gameMinElapsed = Math.max(0, (numPeriods - 1) * (numPeriods <= 4 ? 12 : 5)) + elapsedThisQtr;
+  }
+
   const byTeam = {};
   allAthletes.forEach(a => {
     if (!byTeam[a.teamAbbr]) byTeam[a.teamAbbr] = { name: a.teamName, players: [] };
@@ -5535,15 +5729,58 @@ function renderBoxScore(data, g) {
 
   Object.entries(byTeam).forEach(([abbr, team]) => {
     html += `<div class="bs-team-section">${teamLogoImg(abbr, 16)} <span class="bs-team-label">${abbr} · ${team.name}</span></div>`;
-    // Sort by pts desc
     team.players.sort((a,b) => b.pts - a.pts);
     team.players.forEach(p => {
       const statClass = (val, leaderVal) => val > 0 && val === leaderVal ? ' leader' : val > 0 && val >= leaderVal*0.75 ? ' hot' : '';
+      const pKey = normName(p.name);
+      const lnKey = lastName(p.name);
+      const betR = betLegMap[pKey] || Object.entries(betLegMap).find(([k]) => k.includes(lnKey))?.[1];
+
+      // On-pace projection
+      let paceHTML = '';
+      if (betR && betR.target && isLive && p.min > 0 && gameMinElapsed > 0) {
+        const statType = betR.statType || 'points';
+        const curVal = statType==='rebounds' ? p.reb : statType==='assists' ? p.ast : statType==='threesMade' ? p.threepm : statType==='blocks' ? p.blk : statType==='steals' ? p.stl : p.pts;
+        const statLabel = statType==='rebounds'?'REB':statType==='assists'?'AST':statType==='threesMade'?'3PM':statType==='blocks'?'BLK':statType==='steals'?'STL':'PTS';
+        const pace = p.min > 0 ? (curVal / p.min) : 0;
+        const avgMinsPerGame = 36;
+        const projected = Math.round(pace * avgMinsPerGame * 10) / 10;
+        const target = betR.target.val;
+        const dir = betR.target.dir;
+        const pct = Math.min(100, Math.round((curVal / target) * 100));
+        const onPace = dir === 'over' ? projected >= target : projected <= target;
+        const paceColor = onPace ? 'var(--green)' : 'var(--red)';
+        const paceLabel = onPace
+          ? (dir==='over' ? `On pace for ~${projected} ${statLabel} ✅` : `On pace for ~${projected} ${statLabel} ✅`)
+          : (dir==='over' ? `Proj ~${projected} — needs ${target} ${statLabel} ❌` : `Proj ~${projected} — needs under ${target} ${statLabel} ❌`);
+        paceHTML = `
+          <div style="grid-column:1/-1;padding:4px 0 5px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+              <span style="font-size:9px;color:var(--text3);">${paceLabel}</span>
+              <span style="font-size:9px;font-weight:700;color:${paceColor};">${pct}%</span>
+            </div>
+            <div style="width:100%;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${paceColor};border-radius:2px;transition:width 0.5s;"></div>
+            </div>
+            <div style="font-size:9px;color:var(--text3);margin-top:2px;">${curVal} / ${target} target (${dir})</div>
+          </div>`;
+      } else if (betR && betR.target && isFinal) {
+        const statType = betR.statType || 'points';
+        const curVal = statType==='rebounds' ? p.reb : statType==='assists' ? p.ast : statType==='threesMade' ? p.threepm : statType==='blocks' ? p.blk : statType==='steals' ? p.stl : p.pts;
+        const target = betR.target.val;
+        const dir = betR.target.dir;
+        const hit = dir==='over' ? curVal >= target : curVal <= target;
+        paceHTML = `<div style="grid-column:1/-1;padding:3px 0 5px;font-size:9px;color:${hit?'var(--green)':'var(--red)'};font-weight:700;">${hit?'✅ HIT':'❌ MISSED'} — final: ${curVal} (needed ${dir} ${target})</div>`;
+      }
+
+      const isBetPlayer = !!betR;
+      const highlightStyle = isBetPlayer ? 'background:rgba(255,107,26,0.07);border-left:2px solid var(--orange);' : '';
+
       html += `
-        <div class="bs-player-row" id="bsr-${p.name.replace(/[^a-z]/gi,'')}" onclick="highlightBoxPlayer('${p.name.replace(/'/g,'\'').replace(/"/g,'&quot;')}')">
+        <div class="bs-player-row" id="bsr-${p.name.replace(/[^a-z]/gi,'')}" style="${highlightStyle}" onclick="highlightBoxPlayer('${p.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">
           <div>
-            <div class="bs-player-name">${p.name}</div>
-            <div class="bs-player-pos">${p.pos}${p.min ? ` · ${p.min}m` : ''}</div>
+            <div class="bs-player-name">${p.name}${isBetPlayer ? ' <span style="font-size:8px;background:rgba(255,107,26,0.2);color:var(--orange);padding:1px 5px;border-radius:3px;font-weight:700;">BET</span>' : ''}</div>
+            <div class="bs-player-pos">${p.pos}${p.minDisplay ? ` · ${p.minDisplay}` : ''}</div>
           </div>
           <div class="bs-stat${statClass(p.pts, leaders.pts)}">${p.pts||0}</div>
           <div class="bs-stat${statClass(p.reb, leaders.reb)}">${p.reb||0}</div>
@@ -5551,6 +5788,7 @@ function renderBoxScore(data, g) {
           <div class="bs-stat${statClass(p.threepm, leaders.threepm)}">${p.threepm||0}</div>
           <div class="bs-stat${statClass(p.stl, leaders.stl)}">${p.stl||0}</div>
           <div class="bs-stat${statClass(p.blk, leaders.blk)}">${p.blk||0}</div>
+          ${paceHTML}
         </div>`;
     });
   });
@@ -5559,7 +5797,7 @@ function renderBoxScore(data, g) {
 
   // Refresh button
   html += `
-    <div style="padding:8px 16px 16px;display:flex;gap:8px;align-items:center;justify-content:center;">
+    <div style="padding:10px 16px 16px;display:flex;gap:8px;align-items:center;justify-content:center;">
       <button onclick="liveState.boxScoreData=null;loadBoxScore()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:11px;font-weight:700;padding:6px 16px;cursor:pointer;letter-spacing:0.5px;">↻ REFRESH STATS</button>
       ${isLive ? `<span style="font-size:10px;color:var(--text3);">Live · updates on refresh</span>` : ''}
     </div>
@@ -5567,7 +5805,7 @@ function renderBoxScore(data, g) {
 
   el.innerHTML = html;
 
-  // Highlight players from active bet slip legs
+  // Highlight bet players
   if (liveState.results.length) {
     liveState.results.forEach(r => {
       if (r.playerName) highlightBoxPlayer(r.playerName, false);
