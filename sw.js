@@ -24,6 +24,13 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Message — allow page to trigger update
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Fetch — network-first for API, cache-first for assets
 self.addEventListener('fetch', e => {
   const url = e.request.url;
