@@ -1516,6 +1516,16 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 //  DATA
 // ════════════════════════════════════════════════
 // NBA team logo helper — uses ESPN CDN with tricode-based IDs
+// ── PHT DATE HELPERS (fixes UTC vs Asia/Manila timezone bug) ──
+function getTodayPHT() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, '');
+}
+function getDateOffsetPHT(offsetDays) {
+  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  d.setDate(d.getDate() + offsetDays);
+  return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }).replace(/-/g, '');
+}
+
 const NBA_LOGO_IDS = {
   ATL:1610612737, BOS:1610612738, BKN:1610612751, CHA:1610612766,
   CHI:1610612741, CLE:1610612739, DAL:1610612742, DEN:1610612743,
@@ -2491,9 +2501,7 @@ async function fetchSmartSlipGames() {
   const today = new Date();
   const dates = [];
   for (let i = 0; i <= 3; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
+    dates.push(getDateOffsetPHT(i));
   }
   let allGames = [];
   try {
@@ -2508,7 +2516,7 @@ async function fetchSmartSlipGames() {
   } catch(e) {}
   ssState.loading = false;
 
-  const todayStr = today.toISOString().split('T')[0].replace(/-/g,'');
+  const todayStr = getTodayPHT();
   const out = [];
   allGames.forEach(g => {
     const comp = g.competitions?.[0];
@@ -3099,7 +3107,7 @@ function exportBets() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `nba-bets-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `nba-bets-${getTodayPHT()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   showToast('📦 Bets exported!', 'success');
@@ -4005,7 +4013,7 @@ let liveState = {
   mode: 'schedule',   // 'schedule' | 'slip'
   liveTab: 'slip',    // 'slip' | 'boxscore'
   rawText: '',
-  gameDate: new Date().toISOString().split('T')[0],
+  gameDate: getTodayPHT(),
   selectedGame: null, // { id, date, awayAbbr, homeAbbr, awayName, homeName, statusName, completed, inProgress, tipoff }
   parsedLegs: [],
   results: [],
@@ -4093,9 +4101,7 @@ async function renderSchedulePicker() {
   const today = new Date();
   const dates = [];
   for (let i = -7; i <= 7; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
+    dates.push(getDateOffsetPHT(i));
   }
 
   // Fetch all dates in parallel, collect games
@@ -4119,7 +4125,7 @@ async function renderSchedulePicker() {
     }
   }
 
-  const todayStr = today.toISOString().split('T')[0].replace(/-/g,'');
+  const todayStr = getTodayPHT();
   const pastGames = [], todayGames = [], upcomingGames = [];
 
   allGames.forEach(g => {
@@ -4442,7 +4448,7 @@ async function fetchWithProxy(url) {
 
 // New: use the pre-selected game from schedule picker
 async function fetchNBAStatsByGameId(legs, selectedGame) {
-  const dateStr = (selectedGame.date || new Date().toISOString().split("T")[0]);
+  const dateStr = (selectedGame.date || getTodayPHT());
   const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
   const games = data.events || [];
   const targetGame = games.find(g => g.id === selectedGame.id) || games[0];
@@ -4462,7 +4468,7 @@ async function fetchNBAStatsByGameId(legs, selectedGame) {
 }
 
 async function fetchNBAStats(legs, mode, gameDate) {
-  const dateStr = (gameDate||new Date().toISOString().split("T")[0]).replace(/-/g,"");
+  const dateStr = (gameDate||getTodayPHT());
   const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
   const games = data.events || [];
   if (games.length === 0) throw new Error("No games found for this date");
@@ -5010,9 +5016,7 @@ async function fetchAIBetGames() {
   // Fetch today + next 3 days
   const dates = [];
   for (let i = 0; i <= 3; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dates.push(d.toISOString().split('T')[0].replace(/-/g,''));
+    dates.push(getDateOffsetPHT(i));
   }
   let allGames = [];
   try {
@@ -6318,7 +6322,7 @@ async function renderLiveTracker() {
 
   // Fetch today's games
   try {
-    const todayStr = new Date().toISOString().split('T')[0].replace(/-/g,'');
+    const todayStr = getTodayPHT();
     const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${todayStr}`);
     const games = data.events || [];
 
