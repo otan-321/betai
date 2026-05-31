@@ -1,4 +1,4 @@
-const CACHE = 'nba-bet-v16';
+const CACHE = 'nba-bet-v17';
 const ASSETS = [
   './',
   './index.html',
