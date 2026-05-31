@@ -887,12 +887,19 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 }
 
 /* ──── LIVE BOX SCORE PANEL ──── */
-.box-score-tabs{display:flex;gap:6px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none;}
-.box-score-tabs::-webkit-scrollbar{display:none;}
-.bs-tab{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;background:none;
-  color:var(--text3);font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
-  cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.box-score-tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:7px;padding:0 16px 12px;
+}
+.bs-tab{
+  padding:10px 6px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:none;
+  color:var(--text3);font-size:11px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  font-family:'Barlow Condensed',sans-serif;
+}
 .bs-tab.active{border-color:var(--orange);color:var(--orange);background:var(--orange-dim);}
+.bs-tab:active{transform:scale(0.97);}
 .box-score-wrap{margin:0 16px 12px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);}
 .bs-header{display:grid;grid-template-columns:2fr repeat(6,1fr);background:var(--bg1);
   padding:6px 10px;border-bottom:1px solid var(--border);}
@@ -4136,7 +4143,7 @@ function parsePasteModal() {
 // ════════════════════════════════════════════════
 let liveState = {
   mode: 'schedule',   // 'schedule' | 'slip'
-  liveTab: 'slip',    // 'slip' | 'boxscore'
+  liveTab: 'slip',    // 'slip' | 'boxscore' | 'momentum' | 'courtplay'
   rawText: '',
   gameDate: getTodayPHT(),
   selectedGame: null, // { id, date, awayAbbr, homeAbbr, awayName, homeName, statusName, completed, inProgress, tipoff }
@@ -4408,13 +4415,12 @@ function renderSlipView() {
       <div style="font-size:11px;color:var(--text3);">Tip-off: ${phTime(g.tipoff)||'—'} PHT · Paste your slip now to pre-load it.</div>
     </div>` : ''}
 
-    <!-- Live page sub-tabs -->
+    <!-- Live page sub-tabs — 2×2 grid, all visible -->
     <div class="box-score-tabs">
       <button class="bs-tab ${liveState.liveTab==='slip'||!liveState.liveTab?'active':''}" onclick="setLiveTab('slip')">📋 BET SLIP</button>
       <button class="bs-tab ${liveState.liveTab==='boxscore'?'active':''}" onclick="setLiveTab('boxscore')">📊 BOX SCORE</button>
       <button class="bs-tab ${liveState.liveTab==='momentum'?'active':''}" onclick="setLiveTab('momentum')">📈 MOMENTUM</button>
-      <button class="bs-tab ${liveState.liveTab==='court'?'active':''}" onclick="setLiveTab('court')">🏀 COURT</button>
-      <button class="bs-tab ${liveState.liveTab==='plays'?'active':''}" onclick="setLiveTab('plays')">📋 PLAYS</button>
+      <button class="bs-tab ${liveState.liveTab==='courtplay'?'active':''}" onclick="setLiveTab('courtplay')">🏀 COURT &amp; PLAY</button>
     </div>
 
     <!-- BET SLIP view -->
@@ -4446,26 +4452,29 @@ function renderSlipView() {
       </div>
     </div>
 
-    <!-- COURT POSSESSION view -->
-    <div id="live-court-panel" style="display:${liveState.liveTab==='court'?'block':'none'};">
+    <!-- COURT & PLAY combined view -->
+    <div id="live-courtplay-panel" style="display:${liveState.liveTab==='courtplay'?'block':'none'};">
+      <!-- Court section -->
       <div id="court-content">
         <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading court view…</span></div>
       </div>
-    </div>
-
-    <!-- PLAYS view -->
-    <div id="live-plays-panel" style="display:${liveState.liveTab==='plays'?'block':'none'};">
+      <!-- Divider -->
+      <div style="margin:4px 16px 10px;height:1px;background:var(--border);"></div>
+      <!-- Play-by-play section -->
+      <div class="sec-label" style="padding-top:4px;">📋 PLAY-BY-PLAY</div>
       <div id="plays-content">
-        <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading play-by-play…</span></div>
+        <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading plays…</span></div>
       </div>
     </div>
   `;
 
-  // If box score or momentum tab is active, load it
+  // If box score, momentum, or courtplay tab is active, load it
   if (liveState.liveTab === 'boxscore') {
     loadBoxScore();
   } else if (liveState.liveTab === 'momentum') {
     loadMomentumTab();
+  } else if (liveState.liveTab === 'courtplay') {
+    loadCourtTab(); loadPlaysTab();
   }
 }
 
@@ -5581,30 +5590,28 @@ function showTutSlide(idx) {
 
 function setLiveTab(tab) {
   liveState.liveTab = tab;
-  const slipPanel = document.getElementById('live-slip-panel');
-  const bsPanel = document.getElementById('live-boxscore-panel');
-  const momPanel = document.getElementById('live-momentum-panel');
-  const courtPanel = document.getElementById('live-court-panel');
-  const playsPanel = document.getElementById('live-plays-panel');
-  const tabs = document.querySelectorAll('.bs-tab');
+  const slipPanel      = document.getElementById('live-slip-panel');
+  const bsPanel        = document.getElementById('live-boxscore-panel');
+  const momPanel       = document.getElementById('live-momentum-panel');
+  const courtplayPanel = document.getElementById('live-courtplay-panel');
+  const tabs           = document.querySelectorAll('.bs-tab');
   if (!slipPanel || !bsPanel) { renderSlipView(); return; }
 
-  slipPanel.style.display   = tab === 'slip'      ? 'block' : 'none';
-  bsPanel.style.display     = tab === 'boxscore'  ? 'block' : 'none';
-  if (momPanel)   momPanel.style.display   = tab === 'momentum' ? 'block' : 'none';
-  if (courtPanel) courtPanel.style.display = tab === 'court'    ? 'block' : 'none';
-  if (playsPanel) playsPanel.style.display = tab === 'plays'    ? 'block' : 'none';
+  slipPanel.style.display      = tab === 'slip'      ? 'block' : 'none';
+  bsPanel.style.display        = tab === 'boxscore'  ? 'block' : 'none';
+  if (momPanel)       momPanel.style.display       = tab === 'momentum'  ? 'block' : 'none';
+  if (courtplayPanel) courtplayPanel.style.display = tab === 'courtplay' ? 'block' : 'none';
 
+  // 4 tabs: slip=0, boxscore=1, momentum=2, courtplay=3
   tabs.forEach((t, i) => {
     t.classList.toggle('active',
       (i===0&&tab==='slip')||(i===1&&tab==='boxscore')||
-      (i===2&&tab==='momentum')||(i===3&&tab==='court')||(i===4&&tab==='plays'));
+      (i===2&&tab==='momentum')||(i===3&&tab==='courtplay'));
   });
 
-  if (tab === 'boxscore')  loadBoxScore();
-  else if (tab === 'momentum') loadMomentumTab();
-  else if (tab === 'court')    loadCourtTab();
-  else if (tab === 'plays')    loadPlaysTab();
+  if (tab === 'boxscore')   loadBoxScore();
+  else if (tab === 'momentum')  loadMomentumTab();
+  else if (tab === 'courtplay') { loadCourtTab(); loadPlaysTab(); }
 }
 
 async function loadBoxScore() {
@@ -7263,7 +7270,7 @@ function renderCourtView(g) {
 function startCourtRefresh(g) {
   stopCourtRefresh();
   courtState.refreshTimer = setInterval(async () => {
-    if (liveState.liveTab !== 'court') { stopCourtRefresh(); return; }
+    if (liveState.liveTab !== 'courtplay') { stopCourtRefresh(); return; }
     try {
       const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
       parseCourtState(data, g);
