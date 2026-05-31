@@ -1151,6 +1151,131 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
   background:var(--bg4);transition:all 0.3s;
 }
 .tut-dot.active{background:var(--orange);width:24px;border-radius:4px;}
+
+/* ──── COURT POSSESSION TAB ──── */
+.court-wrap {
+  margin: 0 16px 14px;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg1);
+}
+.court-status-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.court-possession-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 900; letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.court-svg-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 0;
+  background: #1a1a2e;
+}
+.court-svg-wrap svg { display: block; width: 100%; }
+
+/* Ball animation */
+@keyframes ball-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes ball-pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 6px #ff6b1a) drop-shadow(0 0 12px #ff6b1a); }
+  50% { filter: drop-shadow(0 0 14px #ff8c42) drop-shadow(0 0 28px #ff8c42); }
+}
+.court-ball {
+  animation: ball-bounce 0.7s ease-in-out infinite, ball-pulse-glow 1.2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: cx 1.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+@keyframes court-flash-foul {
+  0% { opacity: 0; } 20% { opacity: 0.7; } 100% { opacity: 0; }
+}
+@keyframes court-flash-score {
+  0% { opacity: 0; } 10% { opacity: 0.9; } 80% { opacity: 0.9; } 100% { opacity: 0; }
+}
+.court-event-flash {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: var(--r);
+}
+.court-event-flash.foul { background: rgba(255,69,96,0.18); animation: court-flash-foul 1.2s ease forwards; }
+.court-event-flash.score { background: rgba(0,214,143,0.12); animation: court-flash-score 1.4s ease forwards; }
+.court-event-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px; font-weight: 900; letter-spacing: 2px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+}
+
+/* ──── PLAY-BY-PLAY FEED ──── */
+.pbp-feed {
+  padding: 0 16px 12px;
+}
+.pbp-play {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  animation: pbp-slide-in 0.35s ease;
+}
+@keyframes pbp-slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.pbp-play:last-child { border-bottom: none; }
+.pbp-play-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 4px;
+}
+.pbp-play-dot.score  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.pbp-play-dot.foul   { background: var(--red); }
+.pbp-play-dot.reb    { background: var(--blue); }
+.pbp-play-dot.miss   { background: var(--text3); }
+.pbp-play-dot.sub    { background: var(--gold); }
+.pbp-play-dot.to     { background: var(--orange); }
+.pbp-play-dot.other  { background: var(--bg4); }
+.pbp-play-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  flex-shrink: 0; width: 38px; text-align: right;
+}
+.pbp-play-score {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 800; color: var(--orange);
+  flex-shrink: 0; width: 44px; text-align: right;
+}
+.pbp-play-text {
+  flex: 1; font-size: 12px; color: var(--text2); line-height: 1.4;
+}
+.pbp-play-text strong { color: var(--text); font-weight: 600; }
+.pbp-play.new-score .pbp-play-text { color: var(--green); }
+.pbp-load-more {
+  width: 100%; padding: 9px; background: var(--bg3);
+  border: 1px solid var(--border2); border-radius: var(--r-sm);
+  color: var(--text3); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.8px; cursor: pointer; margin-top: 6px;
+}
+
+/* ──── FLOW CHART ──── */
+.flow-chart-wrap {
+  margin: 0 16px 14px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px;
+  overflow: hidden;
+}
+.flow-chart-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 10px;
+}
+.flow-chart-svg { width: 100%; overflow: visible; }
+
 </style>
 </head>
 <body>
@@ -4288,6 +4413,8 @@ function renderSlipView() {
       <button class="bs-tab ${liveState.liveTab==='slip'||!liveState.liveTab?'active':''}" onclick="setLiveTab('slip')">📋 BET SLIP</button>
       <button class="bs-tab ${liveState.liveTab==='boxscore'?'active':''}" onclick="setLiveTab('boxscore')">📊 BOX SCORE</button>
       <button class="bs-tab ${liveState.liveTab==='momentum'?'active':''}" onclick="setLiveTab('momentum')">📈 MOMENTUM</button>
+      <button class="bs-tab ${liveState.liveTab==='court'?'active':''}" onclick="setLiveTab('court')">🏀 COURT</button>
+      <button class="bs-tab ${liveState.liveTab==='plays'?'active':''}" onclick="setLiveTab('plays')">📋 PLAYS</button>
     </div>
 
     <!-- BET SLIP view -->
@@ -4316,6 +4443,20 @@ function renderSlipView() {
     <div id="live-momentum-panel" style="display:${liveState.liveTab==='momentum'?'block':'none'};">
       <div id="momentum-content">
         <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading momentum…</span></div>
+      </div>
+    </div>
+
+    <!-- COURT POSSESSION view -->
+    <div id="live-court-panel" style="display:${liveState.liveTab==='court'?'block':'none'};">
+      <div id="court-content">
+        <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading court view…</span></div>
+      </div>
+    </div>
+
+    <!-- PLAYS view -->
+    <div id="live-plays-panel" style="display:${liveState.liveTab==='plays'?'block':'none'};">
+      <div id="plays-content">
+        <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading play-by-play…</span></div>
       </div>
     </div>
   `;
@@ -5443,19 +5584,27 @@ function setLiveTab(tab) {
   const slipPanel = document.getElementById('live-slip-panel');
   const bsPanel = document.getElementById('live-boxscore-panel');
   const momPanel = document.getElementById('live-momentum-panel');
+  const courtPanel = document.getElementById('live-court-panel');
+  const playsPanel = document.getElementById('live-plays-panel');
   const tabs = document.querySelectorAll('.bs-tab');
   if (!slipPanel || !bsPanel) { renderSlipView(); return; }
 
-  slipPanel.style.display = tab === 'slip' ? 'block' : 'none';
-  bsPanel.style.display = tab === 'boxscore' ? 'block' : 'none';
-  if (momPanel) momPanel.style.display = tab === 'momentum' ? 'block' : 'none';
+  slipPanel.style.display   = tab === 'slip'      ? 'block' : 'none';
+  bsPanel.style.display     = tab === 'boxscore'  ? 'block' : 'none';
+  if (momPanel)   momPanel.style.display   = tab === 'momentum' ? 'block' : 'none';
+  if (courtPanel) courtPanel.style.display = tab === 'court'    ? 'block' : 'none';
+  if (playsPanel) playsPanel.style.display = tab === 'plays'    ? 'block' : 'none';
 
   tabs.forEach((t, i) => {
-    t.classList.toggle('active', (i===0&&tab==='slip')||(i===1&&tab==='boxscore')||(i===2&&tab==='momentum'));
+    t.classList.toggle('active',
+      (i===0&&tab==='slip')||(i===1&&tab==='boxscore')||
+      (i===2&&tab==='momentum')||(i===3&&tab==='court')||(i===4&&tab==='plays'));
   });
 
-  if (tab === 'boxscore') loadBoxScore();
+  if (tab === 'boxscore')  loadBoxScore();
   else if (tab === 'momentum') loadMomentumTab();
+  else if (tab === 'court')    loadCourtTab();
+  else if (tab === 'plays')    loadPlaysTab();
 }
 
 async function loadBoxScore() {
@@ -6829,8 +6978,471 @@ function updateLiveBadge() {
   }
 }
 
-// Call updateLiveBadge whenever tracker is shown
-const _origRenderTracker = renderTracker;
+// ════════════════════════════════════════════════
+//  COURT POSSESSION TAB — Animated SVG Court
+// ════════════════════════════════════════════════
+let courtState = {
+  possessionSide: null,  // 'away' | 'home' | null
+  lastEventType: null,   // 'score' | 'foul' | 'reb' | 'miss' | null
+  lastEventText: '',
+  awayScore: 0, homeScore: 0,
+  period: '', clock: '',
+  refreshTimer: null,
+  playData: [],
+};
+
+async function loadCourtTab() {
+  const el = document.getElementById('court-content');
+  if (!el) return;
+  const g = liveState.selectedGame;
+  if (!g) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-text">No game selected.</div></div>';
+    return;
+  }
+  if (!g.inProgress && !g.completed) {
+    el.innerHTML = `<div class="empty-state" style="padding:40px 20px;">
+      <div class="empty-icon">⏰</div>
+      <div class="empty-text">Court view activates when the game tips off.<br><br><span style="color:var(--blue);">Tip-off: ${phTime(g.tipoff)||'Scheduled'}</span></div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = '<div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading court data…</span></div>';
+
+  try {
+    const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
+    parseCourtState(data, g);
+    renderCourtView(g);
+    // Auto-refresh every 20s if live
+    if (g.inProgress) startCourtRefresh(g);
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Couldn't load court data.<br><span style="color:var(--orange);cursor:pointer;" onclick="loadCourtTab()">Tap to retry</span></div></div>`;
+  }
+}
+
+function parseCourtState(data, g) {
+  try {
+    const hdr = data.header?.competitions?.[0];
+    const away = hdr?.competitors?.find(c=>c.homeAway==='away');
+    const home = hdr?.competitors?.find(c=>c.homeAway==='home');
+    courtState.awayScore = parseInt(away?.score||0);
+    courtState.homeScore = parseInt(home?.score||0);
+    courtState.period = hdr?.status?.type?.shortDetail || '';
+    courtState.clock = hdr?.status?.displayClock || '';
+
+    // Parse latest plays to determine possession
+    const plays = (data.plays || data.playByPlay?.plays || []);
+    courtState.playData = plays;
+
+    const lastPlay = plays[plays.length - 1];
+    if (lastPlay) {
+      const text = (lastPlay.text || lastPlay.description || '').toLowerCase();
+      const teamId = lastPlay?.team?.id;
+      const awayId = away?.team?.id;
+      const homeId = home?.team?.id;
+
+      // Determine possession side from play
+      if (teamId) {
+        courtState.possessionSide = teamId === awayId ? 'away' : 'home';
+      } else {
+        // Fallback: parse text for team name
+        const awayAbbr = (g.awayAbbr||'').toLowerCase();
+        const homeAbbr = (g.homeAbbr||'').toLowerCase();
+        if (text.includes(awayAbbr)) courtState.possessionSide = 'away';
+        else if (text.includes(homeAbbr)) courtState.possessionSide = 'home';
+      }
+
+      // Classify event
+      if (text.includes('makes') || text.includes('made') || text.includes('free throw made')) {
+        courtState.lastEventType = 'score';
+        courtState.lastEventText = '⚡ SCORES';
+      } else if (text.includes('foul')) {
+        courtState.lastEventType = 'foul';
+        courtState.lastEventText = 'FOUL';
+      } else if (text.includes('rebound')) {
+        courtState.lastEventType = 'reb';
+        courtState.lastEventText = 'REBOUND';
+      } else if (text.includes('miss') || text.includes('misses')) {
+        courtState.lastEventType = 'miss';
+        courtState.lastEventText = 'MISSED';
+      } else if (text.includes('turnover') || text.includes('steal')) {
+        courtState.lastEventType = 'to';
+        courtState.lastEventText = 'TURNOVER';
+        // Flip possession on turnover
+        if (courtState.possessionSide === 'away') courtState.possessionSide = 'home';
+        else if (courtState.possessionSide === 'home') courtState.possessionSide = 'away';
+      } else {
+        courtState.lastEventType = 'other';
+        courtState.lastEventText = '';
+      }
+      courtState.lastPlayText = lastPlay.text || lastPlay.description || '';
+    }
+  } catch(e) {}
+}
+
+function renderCourtView(g) {
+  const el = document.getElementById('court-content');
+  if (!el) return;
+
+  const side = courtState.possessionSide; // 'away' | 'home' | null
+  const awayColor = '#3d8bff';
+  const homeColor = '#ff6b1a';
+
+  // Ball X position: away = left side (25%), home = right side (75%), center = 50%
+  const ballX = side === 'away' ? 105 : side === 'home' ? 295 : 200;
+  const posLabel = side === 'away' ? g.awayAbbr : side === 'home' ? g.homeAbbr : '—';
+  const posColor = side === 'away' ? awayColor : side === 'home' ? homeColor : 'var(--text3)';
+
+  const eventColor = courtState.lastEventType === 'score' ? 'var(--green)'
+    : courtState.lastEventType === 'foul' ? 'var(--red)'
+    : courtState.lastEventType === 'reb' ? 'var(--blue)'
+    : 'var(--orange)';
+
+  // Away highlight (left) and home highlight (right)
+  const awayGlow = side === 'away' ? 'rgba(61,139,255,0.18)' : 'transparent';
+  const homeGlow = side === 'home' ? 'rgba(255,107,26,0.18)' : 'transparent';
+
+  const isLive = g.inProgress;
+
+  el.innerHTML = `
+    <!-- Score bar -->
+    <div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="text-align:center;flex:1;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${awayColor};">${g.awayAbbr}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:var(--text);line-height:1;">${courtState.awayScore}</div>
+        </div>
+        <div style="text-align:center;padding:0 10px;">
+          ${isLive ? `<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1.5px;"><span class="live-dot"></span>LIVE</div>` : ''}
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text3);">${courtState.period}</div>
+          ${courtState.clock ? `<div style="font-size:10px;color:var(--text3);">${courtState.clock}</div>` : ''}
+        </div>
+        <div style="text-align:center;flex:1;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${homeColor};">${g.homeAbbr}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:var(--text);line-height:1;">${courtState.homeScore}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Possession label -->
+    <div style="margin:0 16px 8px;text-align:center;">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">POSSESSION</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:${posColor};letter-spacing:2px;">
+        ${posLabel !== '—' ? `<span style="font-size:16px;margin-right:6px;">🏀</span>${posLabel}` : '—'}
+      </div>
+    </div>
+
+    <!-- Court SVG -->
+    <div class="court-wrap">
+      <div class="court-svg-wrap" id="court-svg-wrap">
+        <svg viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg" id="court-main-svg">
+          <defs>
+            <radialGradient id="courtGrad" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#c8a96e"/>
+              <stop offset="100%" stop-color="#b8945a"/>
+            </radialGradient>
+            <radialGradient id="awayGlow" cx="20%" cy="50%" r="35%">
+              <stop offset="0%" stop-color="${awayColor}" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="${awayColor}" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="homeGlow" cx="80%" cy="50%" r="35%">
+              <stop offset="0%" stop-color="${homeColor}" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="${homeColor}" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="ballShadow">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
+            </filter>
+          </defs>
+
+          <!-- Court floor -->
+          <rect width="400" height="210" fill="url(#courtGrad)" rx="4"/>
+          <!-- Wood grain lines -->
+          <line x1="0" y1="30" x2="400" y2="30" stroke="#b09050" stroke-width="0.5" opacity="0.4"/>
+          <line x1="0" y1="60" x2="400" y2="60" stroke="#b09050" stroke-width="0.5" opacity="0.4"/>
+          <line x1="0" y1="90" x2="400" y2="90" stroke="#b09050" stroke-width="0.5" opacity="0.4"/>
+          <line x1="0" y1="120" x2="400" y2="120" stroke="#b09050" stroke-width="0.5" opacity="0.4"/>
+          <line x1="0" y1="150" x2="400" y2="150" stroke="#b09050" stroke-width="0.5" opacity="0.4"/>
+          <line x1="0" y1="180" x2="400" y2="180" stroke="#b09050" stroke-width="0.5" opacity="0.4"/>
+
+          <!-- Possession glow overlays -->
+          ${side === 'away' ? '<rect x="0" y="0" width="200" height="210" fill="url(#awayGlow)" rx="4"/>' : ''}
+          ${side === 'home' ? '<rect x="200" y="0" width="200" height="210" fill="url(#homeGlow)" rx="4"/>' : ''}
+
+          <!-- Court boundary -->
+          <rect x="4" y="4" width="392" height="202" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2" rx="2"/>
+
+          <!-- Center circle -->
+          <circle cx="200" cy="105" r="36" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <line x1="200" y1="4" x2="200" y2="206" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <circle cx="200" cy="105" r="3" fill="rgba(255,255,255,0.6)"/>
+
+          <!-- LEFT paint (away hoop side) -->
+          <rect x="4" y="67" width="64" height="76" fill="rgba(61,139,255,0.12)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <!-- Left free throw circle -->
+          <circle cx="68" cy="105" r="36" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <!-- Left backboard -->
+          <line x1="4" y1="88" x2="4" y2="122" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
+          <!-- Left hoop -->
+          <circle cx="18" cy="105" r="9" fill="none" stroke="${awayColor}" stroke-width="2.5"/>
+          <line x1="4" y1="105" x2="18" y2="105" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+          <!-- Left 3pt arc -->
+          <path d="M4,42 Q80,18 80,105 Q80,192 4,168" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <!-- Left restricted area -->
+          <path d="M4,96 Q28,96 28,105 Q28,114 4,114" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+
+          <!-- RIGHT paint (home hoop side) -->
+          <rect x="332" y="67" width="64" height="76" fill="rgba(255,107,26,0.12)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <!-- Right free throw circle -->
+          <circle cx="332" cy="105" r="36" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <!-- Right backboard -->
+          <line x1="396" y1="88" x2="396" y2="122" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
+          <!-- Right hoop -->
+          <circle cx="382" cy="105" r="9" fill="none" stroke="${homeColor}" stroke-width="2.5"/>
+          <line x1="396" y1="105" x2="382" y2="105" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+          <!-- Right 3pt arc -->
+          <path d="M396,42 Q320,18 320,105 Q320,192 396,168" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <!-- Right restricted area -->
+          <path d="M396,96 Q372,96 372,105 Q372,114 396,114" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+
+          <!-- Away team label (left) -->
+          <text x="38" y="20" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="11" font-weight="900" fill="${awayColor}" opacity="0.9">${g.awayAbbr}</text>
+          <!-- Home team label (right) -->
+          <text x="362" y="20" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="11" font-weight="900" fill="${homeColor}" opacity="0.9">${g.homeAbbr}</text>
+
+          <!-- BALL — animated, position depends on possession -->
+          <g id="court-ball-group">
+            <!-- Ball shadow -->
+            <ellipse cx="${ballX}" cy="118" rx="9" ry="4" fill="rgba(0,0,0,0.35)" class="court-ball"/>
+            <!-- Ball body -->
+            <circle class="court-ball" id="court-ball-circle" cx="${ballX}" cy="105" r="10"
+              fill="#e8650a" filter="url(#ballShadow)"/>
+            <!-- Ball lines -->
+            <path id="court-ball-lines" d="M${ballX-10},105 Q${ballX},98 ${ballX+10},105 Q${ballX},112 ${ballX-10},105"
+              fill="none" stroke="#b84e00" stroke-width="1.2" class="court-ball"/>
+            <line id="court-ball-vline" x1="${ballX}" y1="95" x2="${ballX}" y2="115"
+              stroke="#b84e00" stroke-width="1" class="court-ball"/>
+          </g>
+        </svg>
+
+        <!-- Flash overlay for events -->
+        <div class="court-event-flash ${courtState.lastEventType==='foul'?'foul':courtState.lastEventType==='score'?'score':''}" id="court-flash">
+          <span class="court-event-label" style="color:${eventColor};">${courtState.lastEventText}</span>
+        </div>
+      </div>
+
+      <!-- Last play text -->
+      <div style="padding:10px 14px;border-top:1px solid var(--border);background:var(--bg1);">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">LAST PLAY</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5;">${courtState.lastPlayText||'—'}</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:16px;padding:0 16px 4px;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);">
+        <div style="width:10px;height:10px;border-radius:50%;background:${awayColor};"></div>
+        ${g.awayAbbr} (Away)
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);">
+        <div style="width:10px;height:10px;border-radius:50%;background:${homeColor};"></div>
+        ${g.homeAbbr} (Home)
+      </div>
+    </div>
+
+    ${isLive ? `
+    <div style="padding:8px 16px 14px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:10px;color:var(--text3);"><span class="live-dot"></span> Auto-updates every 20s</span>
+      <button onclick="stopCourtRefresh();loadCourtTab()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:5px 14px;cursor:pointer;">↻ REFRESH</button>
+    </div>` : `
+    <div style="padding:8px 16px 14px;text-align:center;">
+      <button onclick="loadCourtTab()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:5px 14px;cursor:pointer;">↻ REFRESH COURT</button>
+    </div>`}
+  `;
+}
+
+function startCourtRefresh(g) {
+  stopCourtRefresh();
+  courtState.refreshTimer = setInterval(async () => {
+    if (liveState.liveTab !== 'court') { stopCourtRefresh(); return; }
+    try {
+      const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
+      parseCourtState(data, g);
+      renderCourtView(g);
+    } catch(e) {}
+  }, 20000);
+}
+
+function stopCourtRefresh() {
+  if (courtState.refreshTimer) { clearInterval(courtState.refreshTimer); courtState.refreshTimer = null; }
+}
+
+// ════════════════════════════════════════════════
+//  PLAY-BY-PLAY FEED TAB
+// ════════════════════════════════════════════════
+let playsState = { plays: [], showAll: false };
+
+async function loadPlaysTab() {
+  const el = document.getElementById('plays-content');
+  if (!el) return;
+  const g = liveState.selectedGame;
+  if (!g) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No game selected.</div></div>';
+    return;
+  }
+  if (!g.inProgress && !g.completed) {
+    el.innerHTML = `<div class="empty-state" style="padding:40px 20px;">
+      <div class="empty-icon">⏰</div>
+      <div class="empty-text">Play-by-play will appear once the game starts.<br><br><span style="color:var(--blue);">Tip-off: ${phTime(g.tipoff)||'Scheduled'}</span></div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = '<div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading plays…</span></div>';
+
+  try {
+    // Use cached data if available
+    let data = (liveState.boxScoreGameId === g.id && liveState.boxScoreData) ? liveState.boxScoreData : null;
+    if (!data) {
+      data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${g.id}`);
+      liveState.boxScoreData = data;
+      liveState.boxScoreGameId = g.id;
+    }
+    playsState.plays = (data.plays || data.playByPlay?.plays || []);
+    playsState.showAll = false;
+    renderPlaysView(g, data);
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Play-by-play unavailable.<br><span style="color:var(--orange);cursor:pointer;" onclick="liveState.boxScoreData=null;loadPlaysTab()">Tap to retry</span></div></div>`;
+  }
+}
+
+function classifyPlay(text) {
+  const t = (text||'').toLowerCase();
+  if (t.includes('makes') || t.includes('made') || t.includes('free throw made')) return 'score';
+  if (t.includes('foul'))       return 'foul';
+  if (t.includes('rebound'))    return 'reb';
+  if (t.includes('miss'))       return 'miss';
+  if (t.includes('turnover') || t.includes('steal')) return 'to';
+  if (t.includes('substitution') || t.includes('enters')) return 'sub';
+  return 'other';
+}
+
+function renderPlaysView(g, data) {
+  const el = document.getElementById('plays-content');
+  if (!el) return;
+
+  const plays = playsState.plays;
+  if (!plays || plays.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="padding:32px 20px;"><div class="empty-icon">📋</div><div class="empty-text">No play-by-play data yet.<br>Check back once the game is underway.</div></div>`;
+    return;
+  }
+
+  // Reverse so newest plays first
+  const reversed = [...plays].reverse();
+  const visible = playsState.showAll ? reversed : reversed.slice(0, 30);
+
+  // Pull header data for score display
+  const hdr = data.header?.competitions?.[0];
+  const awayComp = hdr?.competitors?.find(c=>c.homeAway==='away');
+  const homeComp = hdr?.competitors?.find(c=>c.homeAway==='home');
+  const awayScore = awayComp?.score || '0';
+  const homeScore = homeComp?.score || '0';
+  const period = hdr?.status?.type?.shortDetail || '';
+  const isLive = g.inProgress;
+
+  let html = `
+    <!-- Live score mini bar -->
+    <div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Barlow Condensed',sans-serif;">
+        <span style="font-size:18px;font-weight:900;color:var(--blue);">${g.awayAbbr}</span>
+        <span style="font-size:26px;font-weight:900;color:var(--text);margin:0 6px;">${awayScore}</span>
+        <span style="font-size:14px;color:var(--text3);">–</span>
+        <span style="font-size:26px;font-weight:900;color:var(--text);margin:0 6px;">${homeScore}</span>
+        <span style="font-size:18px;font-weight:900;color:var(--orange);">${g.homeAbbr}</span>
+      </div>
+      <div style="font-size:11px;color:${isLive?'var(--orange)':'var(--text3)'};font-weight:700;">
+        ${isLive?`<span class="live-dot"></span>`:''}${period}
+      </div>
+    </div>
+
+    <!-- Filter strip -->
+    <div style="display:flex;gap:6px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none;">
+      <button id="pf-all"   class="ss-filter-btn active"  onclick="filterPlays('all')">ALL</button>
+      <button id="pf-score" class="ss-filter-btn f-safe"  onclick="filterPlays('score')">🟢 SCORES</button>
+      <button id="pf-foul"  class="ss-filter-btn f-risky" onclick="filterPlays('foul')">🔴 FOULS</button>
+      <button id="pf-reb"   class="ss-filter-btn f-star"  onclick="filterPlays('reb')">💎 REBOUNDS</button>
+      <button id="pf-to"    class="ss-filter-btn f-risky" onclick="filterPlays('to')">🔄 TURNOVERS</button>
+    </div>
+
+    <!-- Play feed -->
+    <div class="pbp-feed" id="pbp-feed-inner">`;
+
+  visible.forEach((play, idx) => {
+    const text = play.text || play.description || '';
+    const type = classifyPlay(text);
+    if (window._playsFilter && window._playsFilter !== 'all' && type !== window._playsFilter) return;
+
+    // Score display
+    const aScore = play.awayScore !== undefined ? play.awayScore : (play.homeScore !== undefined ? '' : '');
+    const hScore = play.homeScore !== undefined ? play.homeScore : '';
+    const scoreStr = (aScore !== '' && hScore !== '') ? `${aScore}-${hScore}` : '';
+
+    // Period + clock
+    const periodNum = play.period?.number || play.period || '';
+    const clock = play.clock?.displayValue || play.displayClock || '';
+    const timeStr = clock ? `Q${periodNum} ${clock}` : (periodNum ? `Q${periodNum}` : '');
+
+    // Highlight scoring plays
+    const isScore = type === 'score';
+    const rowClass = isScore ? ' new-score' : '';
+    const dotClass = type;
+
+    // Bold player name in text (first capitalized word sequence)
+    const boldText = text.replace(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
+      '<strong>$1</strong>');
+
+    html += `<div class="pbp-play${rowClass}">
+      <div class="pbp-play-dot ${dotClass}"></div>
+      <div class="pbp-play-time">${timeStr}</div>
+      <div class="pbp-play-text">${boldText}</div>
+      ${scoreStr ? `<div class="pbp-play-score">${scoreStr}</div>` : '<div class="pbp-play-score"></div>'}
+    </div>`;
+  });
+
+  html += `</div>`;
+
+  if (reversed.length > 30 && !playsState.showAll) {
+    html += `<div style="padding:0 16px 10px;">
+      <button class="pbp-load-more" onclick="playsState.showAll=true;renderPlaysView(liveState.selectedGame,liveState.boxScoreData)">
+        SHOW ALL ${reversed.length} PLAYS ↓
+      </button>
+    </div>`;
+  }
+
+  // Refresh button
+  html += `<div style="padding:4px 16px 16px;display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:10px;color:var(--text3);">${plays.length} plays logged</span>
+    <button onclick="liveState.boxScoreData=null;loadPlaysTab()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:5px 14px;cursor:pointer;">↻ REFRESH</button>
+  </div><div style="height:12px"></div>`;
+
+  el.innerHTML = html;
+}
+
+function filterPlays(type) {
+  window._playsFilter = type;
+  // Update active button
+  ['all','score','foul','reb','to'].forEach(k => {
+    const btn = document.getElementById('pf-'+k);
+    if (btn) btn.classList.toggle('active', k === type);
+  });
+  // Re-render feed
+  if (liveState.boxScoreData && liveState.selectedGame) {
+    renderPlaysView(liveState.selectedGame, liveState.boxScoreData);
+  }
+}
+
+// Stop court refresh when leaving Live tab
+const _origStopLiveTrackerRefresh = stopLiveTrackerRefresh;
+
 
 </script>
 </body>
