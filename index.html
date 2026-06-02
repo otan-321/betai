@@ -7866,8 +7866,10 @@ function renderParlayTab() {
     <div class="sec-label">CONTEXT (OPTIONAL)</div>
     <div style="padding:0 16px 12px;">
       <input class="settings-input" id="parlay-context" style="width:100%;"
-        placeholder="e.g. tonight's games, safe picks, OKC vs LAL, player props only…">
+        placeholder="e.g. safe picks, OKC vs LAL, player props only…">
     </div>
+
+    <div id="parlay-games-preview" style="padding:0 16px 10px;"></div>
 
     <div style="padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;">
       ${aiNote}
@@ -7889,6 +7891,28 @@ function renderParlayTab() {
     document.getElementById('parlay-result-area').innerHTML =
       `<div style="margin:0 16px 10px;background:var(--red-dim);border:1px solid rgba(255,69,96,0.3);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;color:var(--red);">⚠️ ${parlayState.error}</div>`;
   }
+
+  // Show upcoming games preview
+  (async () => {
+    const previewEl = document.getElementById('parlay-games-preview');
+    if (!previewEl) return;
+    try {
+      const games = aiBetState.games || await fetchAIBetGames();
+      if (games && games.length > 0) {
+        const chips = games.slice(0, 6).map(g => {
+          const t = phDateTime(g.tipoff) || formatGameDate(g.date);
+          return `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:700;color:var(--text2);white-space:nowrap;">
+            ${teamLogoImg(g.awayAbbr,14)} ${g.awayAbbr} <span style="color:var(--text3);font-size:9px;">@</span> ${g.homeAbbr} ${teamLogoImg(g.homeAbbr,14)}
+            <span style="color:var(--orange);margin-left:2px;">${t}</span>
+          </span>`;
+        }).join('');
+        previewEl.innerHTML = `
+          <div style="font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">📅 UPCOMING GAMES — AI WILL USE THESE</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;">${chips}</div>
+        `;
+      }
+    } catch(e) {}
+  })();
 }
 
 function setParlayLegs(n) {
@@ -7901,10 +7925,10 @@ function setParlayLegs(n) {
 
 async function suggestParlay() {
   const btn = document.getElementById('suggest-parlay-btn');
-  if (btn) { btn.textContent = '⏳ Asking AI…'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳ Fetching games…'; btn.disabled = true; }
   const resultEl = document.getElementById('parlay-result-area');
   if (resultEl) resultEl.innerHTML = `<div style="padding:24px 20px;text-align:center;">
-    <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Generating parlay…</span></div>
+    <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Loading upcoming matchups…</span></div>
   </div>`;
 
   parlayState.loading = true;
@@ -7916,19 +7940,80 @@ async function suggestParlay() {
   const s = loadSettings();
   const hasAI = s.provider && s.provider !== 'none' && s.apiKey;
 
+  // ── Fetch upcoming games to pass real matchup context to AI ──
+  let upcomingGames = [];
+  try {
+    // Reuse aiBetState cache if available, else fetch fresh
+    if (aiBetState.games && aiBetState.games.length > 0) {
+      upcomingGames = aiBetState.games;
+    } else {
+      const dates = [];
+      for (let i = 0; i <= 2; i++) dates.push(getDateOffsetPHT(i));
+      const fetches = dates.map(async ds => {
+        try {
+          const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${ds}`);
+          return (data.events || []).map(g => ({ ...g, _fetchedDate: ds }));
+        } catch(e) { return []; }
+      });
+      const res = await Promise.all(fetches);
+      const allRaw = res.flat();
+      allRaw.forEach(g => {
+        const comp = g.competitions?.[0];
+        const statusName = comp?.status?.type?.name || '';
+        const completed = comp?.status?.type?.completed === true;
+        const inProgress = ['STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD'].includes(statusName);
+        if (inProgress || completed) return;
+        const home = (comp?.competitors||[]).find(c=>c.homeAway==='home');
+        const away = (comp?.competitors||[]).find(c=>c.homeAway==='away');
+        if (!home || !away) return;
+        upcomingGames.push({
+          awayAbbr: away?.team?.abbreviation||'?',
+          homeAbbr: home?.team?.abbreviation||'?',
+          awayName: away?.team?.shortDisplayName||away?.team?.abbreviation||'?',
+          homeName: home?.team?.shortDisplayName||home?.team?.abbreviation||'?',
+          tipoff: g.date || '',
+          date: g._fetchedDate || '',
+        });
+      });
+      upcomingGames.sort((a,b) => a.tipoff.localeCompare(b.tipoff));
+    }
+  } catch(e) {}
+
+  if (btn) btn.textContent = '⏳ Asking AI…';
+
+  // Build game context string for AI
+  const gameLines = upcomingGames.slice(0, 8).map(g => {
+    const t = phDateTime(g.tipoff) || formatGameDate(g.date);
+    return `${g.awayAbbr} @ ${g.homeAbbr} (${t})`;
+  });
+  const gamesContext = gameLines.length > 0
+    ? `\n\nUPCOMING NBA GAMES:\n${gameLines.join('\n')}\n\nIMPORTANT: ONLY suggest picks from the players in these actual upcoming matchups listed above. Do NOT invent games or use players not playing in these matchups.`
+    : '\n\n(No upcoming game data available — suggest picks from any real NBA game scheduled today or tomorrow.)';
+
+  // Build per-team roster hints for the AI
+  const rosterHints = upcomingGames.slice(0, 6).map(g => {
+    const awayRoster = (ROSTERS[g.awayAbbr]||[]).filter((_,i)=>i<6).map(p=>p.name).join(', ');
+    const homeRoster = (ROSTERS[g.homeAbbr]||[]).filter((_,i)=>i<6).map(p=>p.name).join(', ');
+    return `${g.awayAbbr}: ${awayRoster}\n${g.homeAbbr}: ${homeRoster}`;
+  }).join('\n');
+
   try {
     let parsed = null;
     if (hasAI) {
-      const systemPrompt = `You are a sharp NBA betting analyst. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.`;
+      const systemPrompt = `You are a sharp NBA betting analyst. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON. CRITICAL: Only suggest picks for players playing in the upcoming games listed in the user message.`;
       const userMsg = `Suggest a ${n}-leg NBA parlay.
-User preference: ${context}.
+User preference: ${context}.${gamesContext}
+
+TEAM ROSTERS FOR THESE GAMES:
+${rosterHints}
 
 Return ONLY valid JSON, no markdown:
 {
   "parlay": [
     {
       "leg": 1,
-      "pick": "e.g. LeBron James 25+ Points",
+      "pick": "e.g. SGA 30+ Points vs MEM",
+      "game": "e.g. OKC @ MEM",
       "type": "Player Prop / Spread / Total / Moneyline",
       "reasoning": "1 sentence why this is a good pick",
       "confidence": 72
@@ -7938,23 +8023,79 @@ Return ONLY valid JSON, no markdown:
   "estimatedOdds": "+450 to +800",
   "riskLevel": "Moderate"
 }`;
-      const raw = await callAIProvider(systemPrompt, userMsg, 1200);
+      const raw = await callAIProvider(systemPrompt, userMsg, 1400);
       parsed = parseAIJson(raw);
     }
 
     if (!parsed) {
-      // Fallback: rule-based
-      const fallbackPicks = [
-        { pick:'Shai Gilgeous-Alexander 30+ Points', type:'Player Prop', reasoning:'SGA averages 32.7 pts and consistently hits this line at home.', confidence:72 },
-        { pick:'Nikola Jokic 12+ Rebounds', type:'Player Prop', reasoning:'Jokic leads the league in rebounds and routinely exceeds this line.', confidence:68 },
-        { pick:'Stephen Curry 4+ Threes', type:'Player Prop', reasoning:'Curry averages 4.9 threes per game and hits this line in ~70% of games.', confidence:70 },
-        { pick:'Giannis Antetokounmpo 30+ Points', type:'Player Prop', reasoning:'Giannis is on a 30+ point streak and is dominant at home.', confidence:65 },
-        { pick:'Luka Doncic 8+ Assists', type:'Player Prop', reasoning:'Doncic averages 8.0 assists and loves to distribute.', confidence:60 },
-        { pick:'Victor Wembanyama 10+ Rebounds', type:'Player Prop', reasoning:'Wemby averages 10.7 boards and is one of the best rebounding big men.', confidence:63 },
-      ].slice(0, n).map((p, i) => ({ leg: i+1, ...p }));
+      // Fallback: generate from actual upcoming games, not hardcoded players
+      const fallbackPicks = [];
+      const usedGames = upcomingGames.slice(0, Math.max(n, 3));
+      const starPlayers = [
+        { teams: ['OKC'], name: 'Shai Gilgeous-Alexander', mkt: 'Points', line: 30.5, conf: 72 },
+        { teams: ['DEN'], name: 'Nikola Jokic', mkt: 'Rebounds', line: 12.5, conf: 68 },
+        { teams: ['GSW'], name: 'Stephen Curry', mkt: '3PT Made', line: 4.5, conf: 70 },
+        { teams: ['MIL'], name: 'Giannis Antetokounmpo', mkt: 'Points', line: 29.5, conf: 65 },
+        { teams: ['DAL','LAL'], name: 'Luka Doncic', mkt: 'Assists', line: 7.5, conf: 60 },
+        { teams: ['SAS'], name: 'Victor Wembanyama', mkt: 'Rebounds', line: 10.5, conf: 63 },
+        { teams: ['BOS'], name: 'Jayson Tatum', mkt: 'Points', line: 26.5, conf: 66 },
+        { teams: ['PHX'], name: 'Devin Booker', mkt: 'Points', line: 25.5, conf: 64 },
+        { teams: ['MIN'], name: 'Anthony Edwards', mkt: 'Points', line: 26.5, conf: 67 },
+        { teams: ['LAC','LAL'], name: 'LeBron James', mkt: 'Points', line: 24.5, conf: 62 },
+      ];
+
+      // Try to match star players to upcoming games
+      let picksAdded = 0;
+      for (const sp of starPlayers) {
+        if (picksAdded >= n) break;
+        const matchGame = usedGames.find(g =>
+          sp.teams.some(t => t === g.awayAbbr || t === g.homeAbbr)
+        );
+        if (matchGame) {
+          fallbackPicks.push({
+            leg: picksAdded + 1,
+            pick: `${sp.name} ${sp.line}+ ${sp.mkt}`,
+            game: `${matchGame.awayAbbr} @ ${matchGame.homeAbbr}`,
+            type: 'Player Prop',
+            reasoning: `Playing in ${matchGame.awayAbbr} @ ${matchGame.homeAbbr}. Strong matchup for this prop line.`,
+            confidence: sp.conf,
+          });
+          picksAdded++;
+        }
+      }
+
+      // If not enough matched picks, fill from first upcoming games' top roster players
+      if (picksAdded < n) {
+        for (const g of usedGames) {
+          if (picksAdded >= n) break;
+          for (const abbr of [g.awayAbbr, g.homeAbbr]) {
+            if (picksAdded >= n) break;
+            const roster = ROSTERS[abbr] || [];
+            const topPlayer = roster[0];
+            if (topPlayer && !fallbackPicks.find(p => p.pick.includes(topPlayer.name))) {
+              const roleData = PLAYER_ROLES[topPlayer.name];
+              const pts = roleData ? roleData.pts : 20;
+              const line = Math.round(pts * 2) / 2;
+              fallbackPicks.push({
+                leg: picksAdded + 1,
+                pick: `${topPlayer.name} ${line}+ Points`,
+                game: `${g.awayAbbr} @ ${g.homeAbbr}`,
+                type: 'Player Prop',
+                reasoning: `Top player on ${abbr} in the ${g.awayAbbr} vs ${g.homeAbbr} matchup.`,
+                confidence: 58,
+              });
+              picksAdded++;
+            }
+          }
+        }
+      }
+
+      const gamesSummary = usedGames.slice(0,3).map(g=>`${g.awayAbbr} @ ${g.homeAbbr}`).join(', ');
       parsed = {
-        parlay: fallbackPicks,
-        parlayTip: 'Connect an AI provider in Settings for real data-driven, game-specific suggestions.',
+        parlay: fallbackPicks.slice(0, n),
+        parlayTip: upcomingGames.length > 0
+          ? `Picks based on upcoming games: ${gamesSummary}. Connect an AI provider in Settings for sharper analysis.`
+          : 'No upcoming games found — connect an AI key in Settings for real analysis.',
         estimatedOdds: n <= 3 ? '+200 to +400' : n <= 4 ? '+400 to +800' : '+800 to +1500',
         riskLevel: n <= 3 ? 'Moderate' : 'Risky',
         _fallback: true,
@@ -7988,7 +8129,10 @@ function renderParlayResult(parsed) {
           <div class="parlay-leg-num">${l.leg}</div>
           <div style="flex:1;min-width:0;">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--text);margin-bottom:2px;">${l.pick}</div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:4px;display:inline-block;background:var(--blue-dim);color:var(--blue);margin-bottom:5px;">${l.type}</div>
+            <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:5px;">
+              <span style="font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:4px;background:var(--blue-dim);color:var(--blue);">${l.type}</span>
+              ${l.game ? `<span style="font-size:9px;font-weight:700;letter-spacing:0.8px;padding:2px 7px;border-radius:4px;background:var(--orange-dim);color:var(--orange);">${l.game}</span>` : ''}
+            </div>
             <div style="font-size:12px;color:var(--text2);line-height:1.5;">${l.reasoning}</div>
             <div class="parlay-conf-bar">
               <div class="parlay-conf-fill" style="width:${conf}%;background:${confColor};"></div>
@@ -8000,6 +8144,9 @@ function renderParlayResult(parsed) {
   }).join('');
 
   const addToSlipText = legs.map(l => l.pick).join('\n');
+
+  // Store slip text globally to avoid onclick serialization issues
+  window._pendingSlipText = addToSlipText;
 
   el.innerHTML = `
     <div class="sec-label" style="margin-top:4px;">${parsed._fallback ? '🎲 RULE-BASED PICKS' : '🤖 AI SUGGESTED PARLAY'}</div>
@@ -8024,7 +8171,7 @@ function renderParlayResult(parsed) {
 
     <!-- Add to Slip -->
     <div style="padding:0 16px 16px;">
-      <button onclick="addParlayToSlip(${JSON.stringify(addToSlipText).replace(/</g,'&lt;')})"
+      <button onclick="addParlayToSlip(window._pendingSlipText)"
         style="width:100%;padding:13px;border:1.5px solid var(--orange);border-radius:var(--r-sm);background:var(--orange-dim);color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;cursor:pointer;">
         📋 ADD TO SLIP ANALYZER →
       </button>
@@ -8032,11 +8179,23 @@ function renderParlayResult(parsed) {
   `;
 }
 
-function addParlayToSlip(text) {
+function addParlayToSlip(encodedText) {
   // Switch to slip tab and pre-fill the textarea
+  let text = encodedText;
+  try {
+    // Decode any HTML entities that may have been introduced by the onclick serialization
+    const ta = document.createElement('textarea');
+    ta.innerHTML = encodedText;
+    text = ta.value;
+  } catch(e) {}
   aiBetPageTab = 'slip';
   window._prefillSlip = text;
   renderAIBetTabs();
+  // After render, ensure textarea is populated (fallback direct DOM set)
+  setTimeout(() => {
+    const ta = document.getElementById('ai-slip-textarea');
+    if (ta && text) { ta.value = text; }
+  }, 50);
   showToast('📋 Legs loaded into Slip Analyzer!', 'success');
 }
 
