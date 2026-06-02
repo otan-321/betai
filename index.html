@@ -1283,6 +1283,128 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 }
 .flow-chart-svg { width: 100%; overflow: visible; }
 
+/* ──── SETTINGS PAGE ──── */
+.settings-section {
+  margin: 0 16px 14px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+}
+.settings-section-header {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  padding: 10px 14px 8px;
+  background: var(--bg1); border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 14px; border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-label {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  flex-shrink: 0;
+}
+.settings-sub {
+  font-size: 10px; color: var(--text3); margin-top: 2px; line-height: 1.4;
+}
+.settings-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); padding: 9px 12px;
+  color: var(--text); font-family: 'Barlow', sans-serif;
+  font-size: 14px; outline: none; min-width: 0;
+}
+.settings-input:focus { border-color: var(--orange); }
+.settings-select {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); padding: 9px 12px;
+  color: var(--text); font-family: 'Barlow', sans-serif;
+  font-size: 14px; outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none; min-width: 0;
+}
+.settings-select:focus { border-color: var(--orange); }
+.settings-save-btn {
+  margin: 0 16px 14px; width: calc(100% - 32px);
+  padding: 14px; border: none; border-radius: var(--r-sm);
+  background: var(--orange); color: #000;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 900; letter-spacing: 1px; cursor: pointer;
+}
+.settings-save-btn:active { opacity: 0.8; }
+.settings-provider-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+  background: var(--green-dim); color: var(--green);
+}
+
+/* ──── AI PARLAY SUGGESTER ──── */
+.parlay-leg-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); margin: 0 16px 8px; padding: 12px 14px;
+  position: relative; overflow: hidden;
+}
+.parlay-leg-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--orange); border-radius: 2px 0 0 2px;
+}
+.parlay-leg-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--orange); color: #000;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 900; flex-shrink: 0;
+}
+.parlay-conf-bar {
+  height: 5px; border-radius: 3px;
+  background: var(--bg4); overflow: hidden; margin-top: 6px;
+}
+.parlay-conf-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.34,1.2,0.64,1);
+}
+.parlay-summary-card {
+  margin: 0 16px 10px;
+  background: linear-gradient(135deg, var(--bg1) 0%, rgba(255,107,26,0.06) 100%);
+  border: 1.5px solid rgba(255,107,26,0.25);
+  border-radius: var(--r); padding: 14px;
+}
+.leg-count-btn {
+  flex: 1; padding: 10px 4px; border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); background: none;
+  color: var(--text3); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 800; cursor: pointer;
+  transition: all 0.15s; text-align: center;
+}
+.leg-count-btn.active {
+  border-color: var(--orange); color: var(--orange);
+  background: var(--orange-dim);
+}
+
+/* ──── AI SLIP ANALYZER (AI BET tab) ──── */
+.ai-verdict-card {
+  margin: 0 16px 10px;
+  border-radius: var(--r); padding: 14px; overflow: hidden;
+  position: relative;
+}
+.ai-verdict-card.strong { background: var(--green-dim); border: 1.5px solid rgba(0,214,143,0.3); }
+.ai-verdict-card.risky  { background: var(--gold-dim);  border: 1.5px solid rgba(245,200,66,0.3); }
+.ai-verdict-card.fade   { background: var(--red-dim);   border: 1.5px solid rgba(255,69,96,0.3); }
+.ai-leg-verdict {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); margin: 0 16px 6px; padding: 10px 12px;
+}
+.ai-tab-btn {
+  flex: 1; padding: 9px 6px; border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); background: none;
+  color: var(--text3); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  text-align: center;
+}
+.ai-tab-btn.active { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+
 </style>
 </head>
 <body>
@@ -1443,6 +1565,79 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <div id="live-page-content"></div>
   </div>
 
+  <!-- ══════════════════════════ PAGE: SETTINGS ══════════════════════════ -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <h1>⚙️ SETTINGS</h1>
+      <div class="date-chip">AI Provider</div>
+    </div>
+    <div style="height:14px"></div>
+
+    <!-- Provider -->
+    <div class="sec-label">AI PROVIDER</div>
+    <div class="settings-section">
+      <div class="settings-section-header">CHOOSE YOUR AI</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Provider</div>
+          <div class="settings-sub">Powers parlay suggestions & slip analysis</div>
+        </div>
+        <select class="settings-select" id="settings-provider" onchange="onProviderChange()" style="max-width:160px;">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="groq">Groq (Llama)</option>
+          <option value="openai">OpenAI (GPT)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="none">No AI</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <div style="flex:1;">
+          <div class="settings-label">API Key</div>
+          <div class="settings-sub" id="settings-key-hint">Stored locally on your device only</div>
+        </div>
+      </div>
+      <div style="padding:0 14px 13px;">
+        <input class="settings-input" type="password" id="settings-apikey"
+          placeholder="Paste your API key here…" autocomplete="off" style="width:100%;">
+      </div>
+    </div>
+
+    <!-- Default Legs -->
+    <div class="sec-label">DEFAULT PARLAY SIZE</div>
+    <div class="settings-section">
+      <div class="settings-section-header">LEG COUNT</div>
+      <div style="padding:12px 14px;">
+        <div style="display:flex;gap:6px;" id="settings-legs-row">
+          <button class="leg-count-btn" onclick="setSettingsLegs(2)">2</button>
+          <button class="leg-count-btn" onclick="setSettingsLegs(3)">3</button>
+          <button class="leg-count-btn" onclick="setSettingsLegs(4)">4</button>
+          <button class="leg-count-btn" onclick="setSettingsLegs(5)">5</button>
+          <button class="leg-count-btn" onclick="setSettingsLegs(6)">6</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:8px;">Default number of legs for "Suggest My Parlay"</div>
+      </div>
+    </div>
+
+    <!-- API Key sources -->
+    <div class="sec-label">WHERE TO GET KEYS</div>
+    <div class="settings-section">
+      <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;">
+          🟠 <strong style="color:var(--text);">Anthropic</strong> → <span style="color:var(--blue);">console.anthropic.com</span><br>
+          🟢 <strong style="color:var(--text);">Groq</strong> → <span style="color:var(--blue);">console.groq.com</span> (free!)<br>
+          🔵 <strong style="color:var(--text);">OpenAI</strong> → <span style="color:var(--blue);">platform.openai.com</span><br>
+          🟣 <strong style="color:var(--text);">OpenRouter</strong> → <span style="color:var(--blue);">openrouter.ai</span>
+        </div>
+        <div style="font-size:10px;color:var(--text3);background:var(--bg3);border-radius:6px;padding:8px 10px;line-height:1.6;">
+          🔒 Your API key is stored plain-text in localStorage on this device and is never sent anywhere except directly to the AI provider you choose.
+        </div>
+      </div>
+    </div>
+
+    <button class="settings-save-btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
+    <div style="height:16px"></div>
+  </div>
+
   <!-- ══════════════════════════ BOTTOM NAV ══════════════════════════ -->
   <nav>
     <button class="active" id="nav-home" onclick="showPage('home')">
@@ -1460,6 +1655,10 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <button id="nav-tracker" onclick="showPage('tracker')">
       <svg viewBox="0 0 24 24"><path d="M9 12h6M9 8h6M9 16h4M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
       Tracker
+    </button>
+    <button id="nav-settings" onclick="showPage('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
     </button>
   </nav>
 </div>
@@ -2103,6 +2302,7 @@ function showPage(p) {
   if (p === 'analytics') renderAnalytics();
   if (p === 'live') renderLivePage();
   if (p === 'aibet') renderAIBetPage();
+  if (p === 'settings') renderSettingsPage();
 }
 
 // ════════════════════════════════════════════════
@@ -5146,17 +5346,8 @@ let aiBetState = {
   suggestSeed: 0,
 };
 
-async function renderAIBetPage() {
-  const el = document.getElementById('aibet-content');
-  if (!el) return;
-  document.getElementById('aibet-date-chip').textContent =
-    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-
-  if (!aiBetState.selectedGame) {
-    await renderAIBetGamePicker();
-  } else {
-    renderAIBetCards();
-  }
+async function renderAIBetPage_OLD_REPLACED() {
+  // replaced by new tab-based version at bottom of script
 }
 
 async function fetchAIBetGames() {
@@ -7449,6 +7640,577 @@ function filterPlays(type) {
 
 // Stop court refresh when leaving Live tab
 const _origStopLiveTrackerRefresh = stopLiveTrackerRefresh;
+
+// ════════════════════════════════════════════════
+//  SETTINGS MANAGER
+// ════════════════════════════════════════════════
+const SETTINGS_KEY = 'betbuilder_settings';
+
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveSettings() {
+  const provider = document.getElementById('settings-provider')?.value || 'none';
+  const apiKey   = document.getElementById('settings-apikey')?.value?.trim() || '';
+  const legs     = window._settingsLegs || 3;
+  const s = { provider, apiKey, legs };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  showToast('✅ Settings saved!', 'success');
+  renderSettingsPage();
+}
+
+function renderSettingsPage() {
+  const s = loadSettings();
+  const provEl = document.getElementById('settings-provider');
+  const keyEl  = document.getElementById('settings-apikey');
+  if (provEl) provEl.value = s.provider || 'none';
+  if (keyEl)  keyEl.value  = s.apiKey   || '';
+  window._settingsLegs = s.legs || 3;
+  updateSettingsLegsUI();
+  updateProviderHint();
+}
+
+function setSettingsLegs(n) {
+  window._settingsLegs = n;
+  updateSettingsLegsUI();
+}
+
+function updateSettingsLegsUI() {
+  const n = window._settingsLegs || 3;
+  document.querySelectorAll('#settings-legs-row .leg-count-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.textContent) === n);
+  });
+}
+
+function onProviderChange() { updateProviderHint(); }
+
+function updateProviderHint() {
+  const p = document.getElementById('settings-provider')?.value || 'none';
+  const hints = {
+    anthropic:  'Get key at console.anthropic.com',
+    groq:       'Get free key at console.groq.com',
+    openai:     'Get key at platform.openai.com',
+    openrouter: 'Get key at openrouter.ai',
+    none:       'No AI — rule-based suggestions only',
+  };
+  const el = document.getElementById('settings-key-hint');
+  if (el) el.textContent = hints[p] || 'Stored locally on your device only';
+}
+
+// ════════════════════════════════════════════════
+//  AI PROVIDER CALLER
+// ════════════════════════════════════════════════
+const AI_CONFIGS = {
+  anthropic: {
+    url: 'https://api.anthropic.com/v1/messages',
+    model: 'claude-haiku-4-5',
+    buildBody: (systemPrompt, userMsg, maxTokens) => ({
+      model: 'claude-haiku-4-5',
+      max_tokens: maxTokens || 1200,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMsg }],
+    }),
+    buildHeaders: (key) => ({
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    }),
+    extractText: (data) => data?.content?.[0]?.text || '',
+  },
+  groq: {
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'llama-3.1-8b-instant',
+    buildBody: (systemPrompt, userMsg, maxTokens) => ({
+      model: 'llama-3.1-8b-instant',
+      max_tokens: maxTokens || 1200,
+      messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMsg }],
+    }),
+    buildHeaders: (key) => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`,
+    }),
+    extractText: (data) => data?.choices?.[0]?.message?.content || '',
+  },
+  openai: {
+    url: 'https://api.openai.com/v1/chat/completions',
+    model: 'gpt-4o-mini',
+    buildBody: (systemPrompt, userMsg, maxTokens) => ({
+      model: 'gpt-4o-mini',
+      max_tokens: maxTokens || 1200,
+      messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMsg }],
+    }),
+    buildHeaders: (key) => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`,
+    }),
+    extractText: (data) => data?.choices?.[0]?.message?.content || '',
+  },
+  openrouter: {
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    model: 'openai/gpt-4o-mini',
+    buildBody: (systemPrompt, userMsg, maxTokens) => ({
+      model: 'openai/gpt-4o-mini',
+      max_tokens: maxTokens || 1200,
+      messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMsg }],
+    }),
+    buildHeaders: (key) => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`,
+    }),
+    extractText: (data) => data?.choices?.[0]?.message?.content || '',
+  },
+};
+
+async function callAIProvider(systemPrompt, userMsg, maxTokens) {
+  const s = loadSettings();
+  const provider = s.provider || 'none';
+  const apiKey   = s.apiKey || '';
+  if (provider === 'none' || !apiKey) return null; // Caller handles fallback
+  const cfg = AI_CONFIGS[provider];
+  if (!cfg) return null;
+  try {
+    const resp = await fetch(cfg.url, {
+      method: 'POST',
+      headers: cfg.buildHeaders(apiKey),
+      body: JSON.stringify(cfg.buildBody(systemPrompt, userMsg, maxTokens)),
+    });
+    if (!resp.ok) {
+      const err = await resp.text();
+      throw new Error(`AI provider error ${resp.status}: ${err.slice(0,200)}`);
+    }
+    const data = await resp.json();
+    return cfg.extractText(data);
+  } catch(e) {
+    console.error('AI call failed:', e);
+    throw e;
+  }
+}
+
+function parseAIJson(raw) {
+  if (!raw) return null;
+  // Strip markdown fences
+  let clean = raw.replace(/```json|```/g, '').trim();
+  // Extract first { ... } block
+  const start = clean.indexOf('{');
+  const end   = clean.lastIndexOf('}');
+  if (start !== -1 && end !== -1) clean = clean.slice(start, end + 1);
+  try { return JSON.parse(clean); } catch(e) { return null; }
+}
+
+// ════════════════════════════════════════════════
+//  AI BET PAGE — TWO TABS: SUGGEST PARLAY + SLIP ANALYZER
+// ════════════════════════════════════════════════
+let aiBetPageTab = 'suggest'; // 'suggest' | 'slip'
+
+async function renderAIBetPage() {
+  const el = document.getElementById('aibet-content');
+  if (!el) return;
+  document.getElementById('aibet-date-chip').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  renderAIBetTabs();
+}
+
+function renderAIBetTabs() {
+  const el = document.getElementById('aibet-content');
+  if (!el) return;
+  el.innerHTML = `
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:8px;padding:0 16px 14px;">
+      <button class="ai-tab-btn ${aiBetPageTab==='suggest'?'active':''}" onclick="switchAIBetTab('suggest')">🤖 SUGGEST PARLAY</button>
+      <button class="ai-tab-btn ${aiBetPageTab==='slip'?'active':''}" onclick="switchAIBetTab('slip')">📋 ANALYZE SLIP</button>
+    </div>
+    <div id="aibet-tab-content"></div>
+  `;
+  if (aiBetPageTab === 'suggest') renderParlayTab();
+  else renderSlipAnalyzerTab();
+}
+
+function switchAIBetTab(tab) {
+  aiBetPageTab = tab;
+  renderAIBetTabs();
+}
+
+// ════════════════════════════════════════════════
+//  PARLAY SUGGESTER TAB
+// ════════════════════════════════════════════════
+let parlayState = {
+  legs: null,
+  loading: false,
+  result: null,
+  error: null,
+};
+
+function renderParlayTab() {
+  const el = document.getElementById('aibet-tab-content');
+  if (!el) return;
+  const s = loadSettings();
+  const defaultLegs = s.legs || 3;
+  const hasAI = s.provider && s.provider !== 'none' && s.apiKey;
+  window._parlayLegCount = window._parlayLegCount || defaultLegs;
+
+  const legBtns = [2,3,4,5,6].map(n =>
+    `<button class="leg-count-btn ${window._parlayLegCount===n?'active':''}" onclick="setParlayLegs(${n})">${n}</button>`
+  ).join('');
+
+  const aiNote = hasAI
+    ? `<span class="settings-provider-badge">🤖 ${s.provider.toUpperCase()} ACTIVE</span>`
+    : `<span style="font-size:10px;color:var(--gold);">⚡ No AI key — using rule-based fallback. <span style="color:var(--orange);cursor:pointer;" onclick="showPage('settings')">Add key in Settings →</span></span>`;
+
+  el.innerHTML = `
+    <div class="sec-label">LEG COUNT</div>
+    <div style="padding:0 16px 12px;">
+      <div style="display:flex;gap:6px;">${legBtns}</div>
+    </div>
+
+    <div class="sec-label">CONTEXT (OPTIONAL)</div>
+    <div style="padding:0 16px 12px;">
+      <input class="settings-input" id="parlay-context" style="width:100%;"
+        placeholder="e.g. tonight's games, safe picks, OKC vs LAL, player props only…">
+    </div>
+
+    <div style="padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;">
+      ${aiNote}
+    </div>
+
+    <div style="padding:0 16px 12px;">
+      <button onclick="suggestParlay()" id="suggest-parlay-btn"
+        style="width:100%;padding:14px;border:none;border-radius:var(--r-sm);background:var(--orange);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        🤖 SUGGEST PARLAY
+      </button>
+    </div>
+
+    <div id="parlay-result-area"></div>
+  `;
+
+  // Re-render previous result if available
+  if (parlayState.result) renderParlayResult(parlayState.result);
+  if (parlayState.error) {
+    document.getElementById('parlay-result-area').innerHTML =
+      `<div style="margin:0 16px 10px;background:var(--red-dim);border:1px solid rgba(255,69,96,0.3);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;color:var(--red);">⚠️ ${parlayState.error}</div>`;
+  }
+}
+
+function setParlayLegs(n) {
+  window._parlayLegCount = n;
+  // Update buttons
+  document.querySelectorAll('#aibet-tab-content .leg-count-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.textContent) === n);
+  });
+}
+
+async function suggestParlay() {
+  const btn = document.getElementById('suggest-parlay-btn');
+  if (btn) { btn.textContent = '⏳ Asking AI…'; btn.disabled = true; }
+  const resultEl = document.getElementById('parlay-result-area');
+  if (resultEl) resultEl.innerHTML = `<div style="padding:24px 20px;text-align:center;">
+    <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Generating parlay…</span></div>
+  </div>`;
+
+  parlayState.loading = true;
+  parlayState.result = null;
+  parlayState.error = null;
+
+  const n = window._parlayLegCount || 3;
+  const context = document.getElementById('parlay-context')?.value?.trim() || 'no preference';
+  const s = loadSettings();
+  const hasAI = s.provider && s.provider !== 'none' && s.apiKey;
+
+  try {
+    let parsed = null;
+    if (hasAI) {
+      const systemPrompt = `You are a sharp NBA betting analyst. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.`;
+      const userMsg = `Suggest a ${n}-leg NBA parlay.
+User preference: ${context}.
+
+Return ONLY valid JSON, no markdown:
+{
+  "parlay": [
+    {
+      "leg": 1,
+      "pick": "e.g. LeBron James 25+ Points",
+      "type": "Player Prop / Spread / Total / Moneyline",
+      "reasoning": "1 sentence why this is a good pick",
+      "confidence": 72
+    }
+  ],
+  "parlayTip": "1-2 sentence overall tip about this parlay",
+  "estimatedOdds": "+450 to +800",
+  "riskLevel": "Moderate"
+}`;
+      const raw = await callAIProvider(systemPrompt, userMsg, 1200);
+      parsed = parseAIJson(raw);
+    }
+
+    if (!parsed) {
+      // Fallback: rule-based
+      const fallbackPicks = [
+        { pick:'Shai Gilgeous-Alexander 30+ Points', type:'Player Prop', reasoning:'SGA averages 32.7 pts and consistently hits this line at home.', confidence:72 },
+        { pick:'Nikola Jokic 12+ Rebounds', type:'Player Prop', reasoning:'Jokic leads the league in rebounds and routinely exceeds this line.', confidence:68 },
+        { pick:'Stephen Curry 4+ Threes', type:'Player Prop', reasoning:'Curry averages 4.9 threes per game and hits this line in ~70% of games.', confidence:70 },
+        { pick:'Giannis Antetokounmpo 30+ Points', type:'Player Prop', reasoning:'Giannis is on a 30+ point streak and is dominant at home.', confidence:65 },
+        { pick:'Luka Doncic 8+ Assists', type:'Player Prop', reasoning:'Doncic averages 8.0 assists and loves to distribute.', confidence:60 },
+        { pick:'Victor Wembanyama 10+ Rebounds', type:'Player Prop', reasoning:'Wemby averages 10.7 boards and is one of the best rebounding big men.', confidence:63 },
+      ].slice(0, n).map((p, i) => ({ leg: i+1, ...p }));
+      parsed = {
+        parlay: fallbackPicks,
+        parlayTip: 'Connect an AI provider in Settings for real data-driven, game-specific suggestions.',
+        estimatedOdds: n <= 3 ? '+200 to +400' : n <= 4 ? '+400 to +800' : '+800 to +1500',
+        riskLevel: n <= 3 ? 'Moderate' : 'Risky',
+        _fallback: true,
+      };
+    }
+
+    parlayState.result = parsed;
+    renderParlayResult(parsed);
+  } catch(e) {
+    parlayState.error = `AI call failed: ${e.message}. Check your API key in Settings.`;
+    if (resultEl) resultEl.innerHTML =
+      `<div style="margin:0 16px 10px;background:var(--red-dim);border:1px solid rgba(255,69,96,0.3);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;color:var(--red);">⚠️ ${parlayState.error}</div>`;
+  } finally {
+    if (btn) { btn.textContent = '🤖 SUGGEST PARLAY'; btn.disabled = false; }
+    parlayState.loading = false;
+  }
+}
+
+function renderParlayResult(parsed) {
+  const el = document.getElementById('parlay-result-area');
+  if (!el || !parsed) return;
+  const legs = parsed.parlay || [];
+  const riskColor = { Safe:'var(--green)', Moderate:'var(--gold)', Risky:'var(--red)' }[parsed.riskLevel] || 'var(--text3)';
+
+  const legsHTML = legs.map(l => {
+    const conf = parseInt(l.confidence) || 50;
+    const confColor = conf >= 70 ? 'var(--green)' : conf >= 50 ? 'var(--gold)' : 'var(--red)';
+    return `
+      <div class="parlay-leg-card">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div class="parlay-leg-num">${l.leg}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--text);margin-bottom:2px;">${l.pick}</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:4px;display:inline-block;background:var(--blue-dim);color:var(--blue);margin-bottom:5px;">${l.type}</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.5;">${l.reasoning}</div>
+            <div class="parlay-conf-bar">
+              <div class="parlay-conf-fill" style="width:${conf}%;background:${confColor};"></div>
+            </div>
+            <div style="font-size:10px;color:${confColor};margin-top:3px;font-weight:700;">${conf}% confidence</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const addToSlipText = legs.map(l => l.pick).join('\n');
+
+  el.innerHTML = `
+    <div class="sec-label" style="margin-top:4px;">${parsed._fallback ? '🎲 RULE-BASED PICKS' : '🤖 AI SUGGESTED PARLAY'}</div>
+    ${parsed._fallback ? `<div style="padding:0 16px 8px;font-size:11px;color:var(--gold);">⚡ Connect an AI provider in <span style="cursor:pointer;color:var(--orange);" onclick="showPage('settings')">Settings</span> for real analysis.</div>` : ''}
+    ${legsHTML}
+
+    <!-- Summary card -->
+    <div class="parlay-summary-card">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">PARLAY SUMMARY</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px;">${parsed.parlayTip}</div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;background:var(--bg1);border-radius:var(--r-sm);padding:10px;text-align:center;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--gold);">${parsed.estimatedOdds || '—'}</div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px;">EST. ODDS</div>
+        </div>
+        <div style="flex:1;background:var(--bg1);border-radius:var(--r-sm);padding:10px;text-align:center;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:${riskColor};">${parsed.riskLevel || '—'}</div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px;">RISK LEVEL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add to Slip -->
+    <div style="padding:0 16px 16px;">
+      <button onclick="addParlayToSlip(${JSON.stringify(addToSlipText).replace(/</g,'&lt;')})"
+        style="width:100%;padding:13px;border:1.5px solid var(--orange);border-radius:var(--r-sm);background:var(--orange-dim);color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;cursor:pointer;">
+        📋 ADD TO SLIP ANALYZER →
+      </button>
+    </div>
+  `;
+}
+
+function addParlayToSlip(text) {
+  // Switch to slip tab and pre-fill the textarea
+  aiBetPageTab = 'slip';
+  window._prefillSlip = text;
+  renderAIBetTabs();
+  showToast('📋 Legs loaded into Slip Analyzer!', 'success');
+}
+
+// ════════════════════════════════════════════════
+//  SLIP ANALYZER TAB (AI-powered)
+// ════════════════════════════════════════════════
+let slipAnalyzerState = { result: null, loading: false, error: null };
+
+function renderSlipAnalyzerTab() {
+  const el = document.getElementById('aibet-tab-content');
+  if (!el) return;
+  const s = loadSettings();
+  const hasAI = s.provider && s.provider !== 'none' && s.apiKey;
+  const prefill = window._prefillSlip || '';
+  window._prefillSlip = null;
+
+  const aiNote = hasAI
+    ? `<span class="settings-provider-badge">🤖 ${s.provider.toUpperCase()} ACTIVE</span>`
+    : `<span style="font-size:10px;color:var(--gold);">⚡ Rule-based. <span style="color:var(--orange);cursor:pointer;" onclick="showPage('settings')">Add AI key in Settings →</span></span>`;
+
+  el.innerHTML = `
+    <div class="sec-label">PASTE YOUR BET SLIP</div>
+    <div class="paste-box" style="margin:0 16px 12px;">
+      <textarea id="ai-slip-textarea" class="paste-textarea" placeholder="Paste your bet legs here, one per line:
+LeBron James 25+ Points
+Curry 4+ Threes Made
+Jokic 12+ Rebounds
+Thunder -4.5 Spread…">${prefill}</textarea>
+      <div class="paste-actions">
+        <button class="btn-parse" onclick="analyzeSlip()">🤖 ANALYZE WITH AI</button>
+        <button class="btn-clear-paste" onclick="document.getElementById('ai-slip-textarea').value='';slipAnalyzerState.result=null;slipAnalyzerState.error=null;renderSlipAnalyzerTab();">CLEAR</button>
+      </div>
+    </div>
+    <div style="padding:0 16px 12px;">${aiNote}</div>
+    <div id="slip-analyzer-result"></div>
+  `;
+
+  if (slipAnalyzerState.result) renderSlipAnalyzerResult(slipAnalyzerState.result);
+  if (slipAnalyzerState.error) {
+    document.getElementById('slip-analyzer-result').innerHTML =
+      `<div style="margin:0 16px 10px;background:var(--red-dim);border:1px solid rgba(255,69,96,0.3);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;color:var(--red);">⚠️ ${slipAnalyzerState.error}</div>`;
+  }
+}
+
+async function analyzeSlip() {
+  const raw = document.getElementById('ai-slip-textarea')?.value?.trim();
+  if (!raw) { showToast('⚠️ Paste your bet slip first', 'error'); return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) { showToast('⚠️ No legs found', 'error'); return; }
+
+  slipAnalyzerState.loading = true;
+  slipAnalyzerState.result = null;
+  slipAnalyzerState.error = null;
+
+  const resultEl = document.getElementById('slip-analyzer-result');
+  if (resultEl) resultEl.innerHTML = `<div style="padding:24px 20px;text-align:center;">
+    <div class="bs-loading"><div class="bs-dot"></div><div class="bs-dot"></div><div class="bs-dot"></div><span>Analyzing slip…</span></div>
+  </div>`;
+
+  const s = loadSettings();
+  const hasAI = s.provider && s.provider !== 'none' && s.apiKey;
+
+  try {
+    let parsed = null;
+    if (hasAI) {
+      const systemPrompt = `You are a sharp NBA betting analyst. Always respond with ONLY valid JSON, no markdown.`;
+      const userMsg = `Analyze this NBA bet slip with ${lines.length} legs:
+${lines.map((l,i)=>`${i+1}. ${l}`).join('\n')}
+
+Return ONLY valid JSON:
+{
+  "verdict": "STRONG BET or RISKY or FADE THIS",
+  "confidence": 65,
+  "summary": "2-3 sentence overall assessment",
+  "legs": [
+    { "leg": "the pick text", "call": "LIKE IT or RISKY or FADE", "reason": "1 sentence" }
+  ],
+  "keyRisk": "the single biggest weakness",
+  "sharpTip": "one actionable piece of advice"
+}`;
+      const rawText = await callAIProvider(systemPrompt, userMsg, 1200);
+      parsed = parseAIJson(rawText);
+    }
+
+    if (!parsed) {
+      // Fallback: rule-based based on leg count
+      const calls = lines.map(l => {
+        const low = l.toLowerCase();
+        if (low.includes('spread') || low.includes('handicap')) return { leg: l, call:'RISKY', reason:'Spreads are the hardest prop to hit consistently in NBA.' };
+        if (low.includes('moneyline') || low.includes('winner')) return { leg: l, call:'LIKE IT', reason:'Moneyline bets on favorites have solid hit rates.' };
+        return { leg: l, call:'LIKE IT', reason:'Player props have strong historical hit rates at reasonable lines.' };
+      });
+      const conf = Math.max(35, 70 - lines.length * 6);
+      const verdict = conf >= 60 ? 'STRONG BET' : conf >= 45 ? 'RISKY' : 'FADE THIS';
+      parsed = {
+        verdict, confidence: conf,
+        summary: `This ${lines.length}-leg parlay has ${conf}% estimated survival rate. Connect an AI provider in Settings for a real analysis.`,
+        legs: calls,
+        keyRisk: lines.length >= 5 ? 'Too many legs drastically reduces survival probability.' : 'Any single leg miss busts the parlay.',
+        sharpTip: 'Consider trimming to 3-4 legs for a better risk/reward ratio.',
+        _fallback: true,
+      };
+    }
+
+    slipAnalyzerState.result = parsed;
+    renderSlipAnalyzerResult(parsed);
+  } catch(e) {
+    slipAnalyzerState.error = `AI call failed: ${e.message}. Check your API key in Settings.`;
+    if (resultEl) resultEl.innerHTML =
+      `<div style="margin:0 16px 10px;background:var(--red-dim);border:1px solid rgba(255,69,96,0.3);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;color:var(--red);">⚠️ ${slipAnalyzerState.error}</div>`;
+  } finally {
+    slipAnalyzerState.loading = false;
+  }
+}
+
+function renderSlipAnalyzerResult(parsed) {
+  const el = document.getElementById('slip-analyzer-result');
+  if (!el || !parsed) return;
+
+  const verdictClass = parsed.verdict === 'STRONG BET' ? 'strong' : parsed.verdict === 'RISKY' ? 'risky' : 'fade';
+  const verdictIcon  = parsed.verdict === 'STRONG BET' ? '🔥' : parsed.verdict === 'RISKY' ? '⚠️' : '❌';
+  const conf = parseInt(parsed.confidence) || 50;
+  const confColor = conf >= 60 ? 'var(--green)' : conf >= 45 ? 'var(--gold)' : 'var(--red)';
+
+  const callColor = c => c === 'LIKE IT' ? 'var(--green)' : c === 'RISKY' ? 'var(--gold)' : 'var(--red)';
+  const callBg    = c => c === 'LIKE IT' ? 'var(--green-dim)' : c === 'RISKY' ? 'var(--gold-dim)' : 'var(--red-dim)';
+
+  const legsHTML = (parsed.legs || []).map(l => `
+    <div class="ai-leg-verdict">
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:4px;background:${callBg(l.call)};color:${callColor(l.call)};flex-shrink:0;margin-top:2px;">${l.call}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">${l.leg}</div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5;">${l.reason}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  el.innerHTML = `
+    ${parsed._fallback ? `<div style="padding:0 16px 4px;font-size:11px;color:var(--gold);">⚡ Rule-based analysis. <span style="cursor:pointer;color:var(--orange);" onclick="showPage('settings')">Add AI key in Settings</span> for real analysis.</div>` : ''}
+
+    <!-- Verdict card -->
+    <div class="ai-verdict-card ${verdictClass}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;line-height:1;">${verdictIcon} ${parsed.verdict}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">${parsed.summary}</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:${confColor};line-height:1;">${conf}%</div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:1px;">CONFIDENCE</div>
+        </div>
+      </div>
+      <div class="parlay-conf-bar">
+        <div class="parlay-conf-fill" style="width:${conf}%;background:${confColor};"></div>
+      </div>
+    </div>
+
+    <!-- Leg breakdown -->
+    <div class="sec-label">LEG BREAKDOWN</div>
+    ${legsHTML}
+
+    <!-- Key risk + sharp tip -->
+    <div style="margin:8px 16px 6px;background:var(--red-dim);border:1px solid rgba(255,69,96,0.2);border-radius:var(--r-sm);padding:11px 13px;">
+      <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--red);margin-bottom:4px;">⚠️ KEY RISK</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;">${parsed.keyRisk}</div>
+    </div>
+    <div style="margin:0 16px 16px;background:var(--blue-dim);border:1px solid rgba(61,139,255,0.2);border-radius:var(--r-sm);padding:11px 13px;">
+      <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--blue);margin-bottom:4px;">💡 SHARP TIP</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;">${parsed.sharpTip}</div>
+    </div>
+    <div style="height:12px;"></div>
+  `;
+}
 
 
 </script>
