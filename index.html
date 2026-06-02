@@ -1490,12 +1490,14 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 
   <!-- ══════════════════════════ PAGE: AI BET ══════════════════════════ -->
   <div class="page" id="page-aibet">
-    <div class="page-header">
-      <h1>🤖 AI BET</h1>
-      <div class="date-chip" id="aibet-date-chip"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;padding:40px 24px;text-align:center;">
+      <div style="font-size:64px;margin-bottom:20px;animation:bounce 1.4s ease-in-out infinite;">🏀</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;letter-spacing:2px;color:var(--orange);text-shadow:0 0 32px var(--orange-glow);margin-bottom:8px;">UPCOMING UPDATE</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:24px;">Coming Soon</div>
+      <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:18px 22px;max-width:300px;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">AI Bet features are being upgraded. Stay tuned for a smarter, sharper experience. 🏀🔥</div>
+      </div>
     </div>
-    <div style="height:12px"></div>
-    <div id="aibet-content"></div>
   </div>
 
   <!-- ══════════════════════════ PAGE: TRACKER ══════════════════════════ -->
@@ -1565,78 +1567,20 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <div id="live-page-content"></div>
   </div>
 
-  <!-- ══════════════════════════ PAGE: SETTINGS ══════════════════════════ -->
-  <div class="page" id="page-settings">
-    <div class="page-header">
-      <h1>⚙️ SETTINGS</h1>
-      <div class="date-chip">AI Provider</div>
-    </div>
-    <div style="height:14px"></div>
-
-    <!-- Provider -->
-    <div class="sec-label">AI PROVIDER</div>
-    <div class="settings-section">
-      <div class="settings-section-header">CHOOSE YOUR AI</div>
-      <div class="settings-row">
-        <div>
-          <div class="settings-label">Provider</div>
-          <div class="settings-sub">Powers parlay suggestions & slip analysis</div>
-        </div>
-        <select class="settings-select" id="settings-provider" onchange="onProviderChange()" style="max-width:160px;">
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="groq">Groq (Llama)</option>
-          <option value="openai">OpenAI (GPT)</option>
-          <option value="openrouter">OpenRouter</option>
-          <option value="none">No AI</option>
-        </select>
-      </div>
-      <div class="settings-row">
-        <div style="flex:1;">
-          <div class="settings-label">API Key</div>
-          <div class="settings-sub" id="settings-key-hint">Stored locally on your device only</div>
-        </div>
-      </div>
-      <div style="padding:0 14px 13px;">
-        <input class="settings-input" type="password" id="settings-apikey"
-          placeholder="Paste your API key here…" autocomplete="off" style="width:100%;">
+  <!-- ══════════════════════════ PAGE: SOON ══════════════════════════ -->
+  <div class="page" id="page-soon">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;padding:40px 24px;text-align:center;">
+      <div style="font-size:64px;margin-bottom:20px;animation:bounce 1.4s ease-in-out infinite;">🏀</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;letter-spacing:2px;color:var(--orange);text-shadow:0 0 32px var(--orange-glow);margin-bottom:8px;">UPCOMING UPDATE</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:24px;">Coming Soon</div>
+      <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:18px 22px;max-width:300px;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">New features are on their way. Check back soon for the latest updates. 🏀🔥</div>
       </div>
     </div>
-
-    <!-- Default Legs -->
-    <div class="sec-label">DEFAULT PARLAY SIZE</div>
-    <div class="settings-section">
-      <div class="settings-section-header">LEG COUNT</div>
-      <div style="padding:12px 14px;">
-        <div style="display:flex;gap:6px;" id="settings-legs-row">
-          <button class="leg-count-btn" onclick="setSettingsLegs(2)">2</button>
-          <button class="leg-count-btn" onclick="setSettingsLegs(3)">3</button>
-          <button class="leg-count-btn" onclick="setSettingsLegs(4)">4</button>
-          <button class="leg-count-btn" onclick="setSettingsLegs(5)">5</button>
-          <button class="leg-count-btn" onclick="setSettingsLegs(6)">6</button>
-        </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:8px;">Default number of legs for "Suggest My Parlay"</div>
-      </div>
-    </div>
-
-    <!-- API Key sources -->
-    <div class="sec-label">WHERE TO GET KEYS</div>
-    <div class="settings-section">
-      <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;">
-        <div style="font-size:12px;color:var(--text2);line-height:1.6;">
-          🟠 <strong style="color:var(--text);">Anthropic</strong> → <span style="color:var(--blue);">console.anthropic.com</span><br>
-          🟢 <strong style="color:var(--text);">Groq</strong> → <span style="color:var(--blue);">console.groq.com</span> (free!)<br>
-          🔵 <strong style="color:var(--text);">OpenAI</strong> → <span style="color:var(--blue);">platform.openai.com</span><br>
-          🟣 <strong style="color:var(--text);">OpenRouter</strong> → <span style="color:var(--blue);">openrouter.ai</span>
-        </div>
-        <div style="font-size:10px;color:var(--text3);background:var(--bg3);border-radius:6px;padding:8px 10px;line-height:1.6;">
-          🔒 Your API key is stored plain-text in localStorage on this device and is never sent anywhere except directly to the AI provider you choose.
-        </div>
-      </div>
-    </div>
-
-    <button class="settings-save-btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
-    <div style="height:16px"></div>
   </div>
+
+  <!-- ══════════════════════════ PAGE: SETTINGS (hidden) ══════════════════════════ -->
+  <div class="page" id="page-settings" style="display:none!important;"></div>
 
   <!-- ══════════════════════════ BOTTOM NAV ══════════════════════════ -->
   <nav>
@@ -1644,7 +1588,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home
     </button>
-    <button id="nav-builder" onclick="showPage('aibet')">
+    <button id="nav-soon" onclick="showPage('soon')">
       <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 015 5c0 2.4-1.7 4.4-4 4.9V13h2v2h-2v2h2v2h-2v1a1 1 0 01-2 0v-1H9v-2h2v-2H9v-2h2v-1.1C8.7 11.4 7 9.4 7 7a5 5 0 015-5z" stroke-width="1.5"/></svg>
       AI BET
     </button>
@@ -1656,10 +1600,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
       <svg viewBox="0 0 24 24"><path d="M9 12h6M9 8h6M9 16h4M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
       Tracker
     </button>
-    <button id="nav-settings" onclick="showPage('settings')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      Settings
-    </button>
+
   </nav>
 </div>
 
@@ -2288,21 +2229,20 @@ window.addEventListener('DOMContentLoaded', () => {
 //  NAVIGATION
 // ════════════════════════════════════════════════
 function showPage(p) {
+  // Redirect old tabs to the coming soon page
+  if (p === 'aibet' || p === 'settings') p = 'soon';
+
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
   document.getElementById('page-' + p)?.classList.add('active');
   const nb = document.getElementById('nav-' + p);
   if (nb) nb.classList.add('active');
-  // aibet nav button is nav-builder
-  if (p === 'aibet') document.getElementById('nav-builder')?.classList.add('active');
 
   if (p !== 'tracker') stopLiveTrackerRefresh();
   if (p === 'home') renderHome();
   if (p === 'tracker') { renderTracker(); updateLiveBadge(); }
   if (p === 'analytics') renderAnalytics();
   if (p === 'live') renderLivePage();
-  if (p === 'aibet') renderAIBetPage();
-  if (p === 'settings') renderSettingsPage();
 }
 
 // ════════════════════════════════════════════════
