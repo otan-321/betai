@@ -695,14 +695,14 @@ select.odds-input{
 .leg-desc-text{flex:1;font-size:12px;color:var(--text);line-height:1.3;}
 .leg-live-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:5px 10px 7px;border-top:1px solid var(--border);
-  background:var(--bg1);
+  padding:4px 10px 5px;border-top:1px solid var(--border);
+  background:var(--bg1);gap:6px;
 }
 .leg-live-stat{
   font-family:'Barlow Condensed',sans-serif;
-  font-size:17px;font-weight:900;color:var(--text);
+  font-size:13px;font-weight:900;color:var(--text);
 }
-.leg-live-label{font-size:9px;color:var(--text3);margin-top:1px;}
+.leg-live-label{font-size:9px;color:var(--text3);margin-left:3px;display:inline;}
 .leg-need{
   font-size:11px;font-weight:600;text-align:right;line-height:1.4;
 }
@@ -5097,15 +5097,13 @@ function renderLiveResults() {
         <span style="font-size:10px;font-weight:700;color:${sc};flex-shrink:0;">${sl}</span>
       </div>
       <div class="leg-live-row">
-        <div>
-          <div class="leg-live-stat" style="color:${sc};">${r.currentVal!==undefined&&r.currentVal!==null?r.currentVal:'—'}</div>
-          <div class="leg-live-label">${statLabel}</div>
+        <div style="display:flex;align-items:baseline;gap:3px;flex-shrink:0;">
+          <span class="leg-live-stat" style="color:${sc};">${r.currentVal!==undefined&&r.currentVal!==null?r.currentVal:'—'}</span>
+          <span class="leg-live-label">${statLabel}</span>
         </div>
-        <div style="text-align:right;">
-          <div class="leg-need ${r.hitting?'safe':r.status==='pending'?'neutral':'danger'}" style="font-size:11px;">
-            ${r.label||'—'}
-          </div>
-          <div style="font-size:10px;color:var(--text3);margin-top:1px;">${r.subLabel||''}</div>
+        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap;row-gap:0;">
+          <span class="leg-need ${r.hitting?'safe':r.status==='pending'?'neutral':'danger'}" style="font-size:11px;">${r.label||'—'}</span>
+          ${r.subLabel?`<span style="font-size:9px;color:var(--text3);">${r.subLabel}</span>`:''}
           ${progressHint}
         </div>
       </div>
