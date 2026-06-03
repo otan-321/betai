@@ -942,6 +942,65 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
   padding:3px 10px;}
 .live-pulse{animation:pulse-dot 1.2s ease-in-out infinite;}
 
+/* ── LIVE GAME BANNER ANIMATIONS ── */
+@keyframes banner-border-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,107,26,0),inset 0 0 0 1px rgba(255,107,26,0.35);}
+  50%{box-shadow:0 0 18px 4px rgba(255,107,26,0.22),inset 0 0 0 1px rgba(255,107,26,0.8);}
+}
+@keyframes banner-sweep{
+  0%{background-position:-200% center;}
+  100%{background-position:300% center;}
+}
+@keyframes logo-float{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-3px) scale(1.06);}
+}
+@keyframes logo-float-r{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-3px) scale(1.06);}
+}
+@keyframes vs-ping{
+  0%,100%{transform:scale(1);opacity:0.5;}
+  50%{transform:scale(1.25);opacity:1;}
+}
+@keyframes score-flash{
+  0%,100%{opacity:1;}
+  40%{opacity:0.5;}
+}
+@keyframes upcoming-shimmer{
+  0%{background-position:-200% center;}
+  100%{background-position:200% center;}
+}
+
+.live-banner{
+  position:relative;overflow:hidden;
+  animation:banner-border-pulse 2s ease-in-out infinite;
+  border:1px solid rgba(255,107,26,0.5) !important;
+}
+.live-banner::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,107,26,0.07) 50%,transparent 70%);
+  background-size:200% 100%;
+  animation:banner-sweep 3s linear infinite;
+}
+.upcoming-banner{
+  position:relative;overflow:hidden;
+  border:1px solid rgba(61,139,255,0.35) !important;
+}
+.upcoming-banner::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(61,139,255,0.06) 50%,transparent 70%);
+  background-size:200% 100%;
+  animation:banner-sweep 4s linear infinite;
+}
+.final-banner{
+  border:1px solid rgba(255,255,255,0.09) !important;
+}
+.banner-logo-away{animation:logo-float 3s ease-in-out infinite;}
+.banner-logo-home{animation:logo-float-r 3s ease-in-out infinite;animation-delay:1.5s;}
+.banner-vs{animation:vs-ping 2s ease-in-out infinite;}
+.banner-score-live{animation:score-flash 2s ease-in-out infinite;}
+
 /* ──── LIVE TRACKER TAB ──── */
 .tracker-tabs{display:flex;padding:0 16px 12px;gap:8px;}
 .tracker-tab{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);
@@ -1808,8 +1867,14 @@ const NBA_LOGO_IDS = {
   POR:1610612757, SAC:1610612758, SAS:1610612759, TOR:1610612761,
   UTA:1610612762, WAS:1610612764
 };
+// ESPN sometimes returns 2-letter codes (NY, SA, GS, NO) — map to standard 3-letter
+const ESPN_ABBR_FIX = {
+  NY:'NYK', SA:'SAS', GS:'GSW', NO:'NOP', UTAH:'UTA', PHO:'PHX'
+};
+function normalizeAbbr(a) { return a ? (ESPN_ABBR_FIX[a.toUpperCase()] || a.toUpperCase()) : a; }
+
 function teamLogoURL(short) {
-  const id = NBA_LOGO_IDS[short];
+  const id = NBA_LOGO_IDS[normalizeAbbr(short)];
   return id ? `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg` : '';
 }
 function teamLogoImg(short, size=44) {
@@ -2802,10 +2867,10 @@ async function fetchSmartSlipGames() {
     out.push({
       id: g.id,
       date: ds,
-      awayAbbr: away?.team?.abbreviation||'?',
-      homeAbbr: home?.team?.abbreviation||'?',
-      awayName: away?.team?.shortDisplayName||away?.team?.abbreviation||'?',
-      homeName: home?.team?.shortDisplayName||home?.team?.abbreviation||'?',
+      awayAbbr: normalizeAbbr(away?.team?.abbreviation)||'?',
+      homeAbbr: normalizeAbbr(home?.team?.abbreviation)||'?',
+      awayName: away?.team?.shortDisplayName||normalizeAbbr(away?.team?.abbreviation)||'?',
+      homeName: home?.team?.shortDisplayName||normalizeAbbr(home?.team?.abbreviation)||'?',
       statusName, completed, inProgress,
       statusDisplay: comp?.status?.type?.shortDetail || '',
       tipoff: g.date || '',
@@ -4411,10 +4476,10 @@ async function renderSchedulePicker() {
     const entry = {
       id: g.id,
       date: ds,
-      awayAbbr: away?.team?.abbreviation||'?',
-      homeAbbr: home?.team?.abbreviation||'?',
-      awayName: away?.team?.shortDisplayName||away?.team?.abbreviation||'?',
-      homeName: home?.team?.shortDisplayName||home?.team?.abbreviation||'?',
+      awayAbbr: normalizeAbbr(away?.team?.abbreviation)||'?',
+      homeAbbr: normalizeAbbr(home?.team?.abbreviation)||'?',
+      awayName: away?.team?.shortDisplayName||normalizeAbbr(away?.team?.abbreviation)||'?',
+      homeName: home?.team?.shortDisplayName||normalizeAbbr(home?.team?.abbreviation)||'?',
       awayScore: away?.score,
       homeScore: home?.score,
       statusName,
@@ -4445,15 +4510,17 @@ async function renderSchedulePicker() {
       statusBadge = `<span style="font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:20px;background:var(--blue-dim);color:var(--blue);">${phDateTime(g.tipoff)||'SCHEDULED'}</span>`;
     }
     const scoreRow = (g.completed || g.inProgress) && g.awayScore !== undefined
-      ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);letter-spacing:1px;">${g.awayScore} – ${g.homeScore}</div>`
+      ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);letter-spacing:1px;${g.inProgress?'animation:score-flash 2s ease-in-out infinite;':''}">${g.awayScore} – ${g.homeScore}</div>`
       : '';
-    return `<div onclick="selectScheduleGame(${JSON.stringify(g).replace(/"/g,'&quot;')})" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin:0 16px 8px;padding:12px 14px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px;" ontouchstart="this.style.background='var(--bg3)'" ontouchend="this.style.background='var(--bg2)'">
+    const cardClass = g.inProgress ? 'live-banner' : '';
+    const cardBorder = g.inProgress ? '' : 'border:1px solid var(--border);';
+    return `<div onclick="selectScheduleGame(${JSON.stringify(g).replace(/"/g,'&quot;')})" class="${cardClass}" style="background:var(--bg2);${cardBorder}border-radius:var(--r);margin:0 16px 8px;padding:12px 14px;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;gap:10px;" ontouchstart="this.style.opacity='0.8'" ontouchend="this.style.opacity='1'">
       <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${aLogo}</div>
+        <div class="${g.inProgress?'banner-logo-away':''}" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${aLogo}</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--text);">${g.awayAbbr}</div>
-        <div style="font-size:10px;color:var(--text3);font-weight:600;">@</div>
+        <div class="${g.inProgress?'banner-vs':''}" style="font-size:10px;color:var(--text3);font-weight:600;">@</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--text);">${g.homeAbbr}</div>
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${hLogo}</div>
+        <div class="${g.inProgress?'banner-logo-home':''}" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${hLogo}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         ${scoreRow}
@@ -4535,14 +4602,14 @@ function renderSlipView() {
 
   el.innerHTML = `
     <div style="padding:0 16px 10px;">
-      <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;">
-        <button onclick="liveState.mode='schedule';liveState.results=[];stopAutoRefresh();renderLivePage()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-size:11px;font-weight:700;padding:4px 9px;cursor:pointer;">← GAMES</button>
-        <div style="flex:1;display:flex;align-items:center;gap:7px;min-width:0;">
-          <div style="width:28px;height:28px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;">${aLogo}</div>
+      <div class="${g.inProgress ? 'live-banner' : g.completed ? 'final-banner' : 'upcoming-banner'}" style="background:var(--bg2);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;">
+        <button onclick="liveState.mode='schedule';liveState.results=[];stopAutoRefresh();renderLivePage()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-size:11px;font-weight:700;padding:4px 9px;cursor:pointer;flex-shrink:0;">← GAMES</button>
+        <div style="flex:1;display:flex;align-items:center;gap:7px;min-width:0;justify-content:center;">
+          <div class="banner-logo-away" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;">${aLogo}</div>
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;">${g.awayAbbr}</span>
-          <span style="color:var(--text3);font-size:10px;">vs</span>
+          <span class="${g.inProgress ? 'banner-vs' : ''}" style="color:var(--text3);font-size:10px;">vs</span>
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;">${g.homeAbbr}</span>
-          <div style="width:28px;height:28px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;">${hLogo}</div>
+          <div class="banner-logo-home" style="width:28px;height:28px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;">${hLogo}</div>
         </div>
         <div>${gameStatusBadge}</div>
       </div>
@@ -4847,8 +4914,8 @@ async function resolveLeg(leg, games, mode) {
     const hScore = parseInt(home?.score||0);
     const aScore = parseInt(away?.score||0);
     const total = hScore+aScore;
-    const hAbbr = home?.team?.abbreviation||'HOME';
-    const aAbbr = away?.team?.abbreviation||'AWAY';
+    const hAbbr = normalizeAbbr(home?.team?.abbreviation)||'HOME';
+    const aAbbr = normalizeAbbr(away?.team?.abbreviation)||'AWAY';
     const scoreLabel = `${aAbbr} ${aScore} – ${hAbbr} ${hScore}`;
 
     if (statType==='gameTotal' && target) {
@@ -5324,10 +5391,10 @@ async function fetchAIBetGames() {
     out.push({
       id: g.id,
       date: g._fetchedDate || '',
-      awayAbbr: away?.team?.abbreviation||'?',
-      homeAbbr: home?.team?.abbreviation||'?',
-      awayName: away?.team?.shortDisplayName||away?.team?.abbreviation||'?',
-      homeName: home?.team?.shortDisplayName||home?.team?.abbreviation||'?',
+      awayAbbr: normalizeAbbr(away?.team?.abbreviation)||'?',
+      homeAbbr: normalizeAbbr(home?.team?.abbreviation)||'?',
+      awayName: away?.team?.shortDisplayName||normalizeAbbr(away?.team?.abbreviation)||'?',
+      homeName: home?.team?.shortDisplayName||normalizeAbbr(home?.team?.abbreviation)||'?',
       inProgress: false,
       completed: false,
       tipoff: g.date || '',
@@ -6673,8 +6740,8 @@ function renderLiveTrackerBets(pending, games, boxScores) {
     const home = comp?.competitors?.find(c=>c.homeAway==='home');
     const st = comp?.status?.type;
     scoreMap[g.id] = {
-      awayAbbr: away?.team?.abbreviation,
-      homeAbbr: home?.team?.abbreviation,
+      awayAbbr: normalizeAbbr(away?.team?.abbreviation),
+      homeAbbr: normalizeAbbr(home?.team?.abbreviation),
       awayScore: away?.score || '0',
       homeScore: home?.score || '0',
       inProgress: ['STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD'].includes(st?.name),
@@ -7905,8 +7972,8 @@ async function suggestParlay() {
         const away = (comp?.competitors||[]).find(c=>c.homeAway==='away');
         if (!home || !away) return;
         upcomingGames.push({
-          awayAbbr: away?.team?.abbreviation||'?',
-          homeAbbr: home?.team?.abbreviation||'?',
+          awayAbbr: normalizeAbbr(away?.team?.abbreviation)||'?',
+          homeAbbr: normalizeAbbr(home?.team?.abbreviation)||'?',
           awayName: away?.team?.shortDisplayName||away?.team?.abbreviation||'?',
           homeName: home?.team?.shortDisplayName||home?.team?.abbreviation||'?',
           tipoff: g.date || '',
