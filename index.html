@@ -682,34 +682,34 @@ select.odds-input{
 /* LEG RESULT CARD */
 .leg-result-card{
   background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r);margin:0 16px 8px;overflow:hidden;
+  border-radius:var(--r-sm);margin:0 16px 5px;overflow:hidden;
 }
 .leg-result-header{
-  display:flex;align-items:center;gap:10px;padding:12px 14px 8px;
+  display:flex;align-items:center;gap:7px;padding:7px 10px 6px;
 }
 .leg-market-tag{
-  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-  padding:2px 7px;border-radius:4px;background:var(--blue-dim);color:var(--blue);
+  font-size:8px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  padding:1px 5px;border-radius:3px;background:var(--blue-dim);color:var(--blue);
   flex-shrink:0;
 }
-.leg-desc-text{flex:1;font-size:13px;color:var(--text);line-height:1.4;}
+.leg-desc-text{flex:1;font-size:12px;color:var(--text);line-height:1.3;}
 .leg-live-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:8px 14px 12px;border-top:1px solid var(--border);
+  padding:5px 10px 7px;border-top:1px solid var(--border);
   background:var(--bg1);
 }
 .leg-live-stat{
   font-family:'Barlow Condensed',sans-serif;
-  font-size:22px;font-weight:900;color:var(--text);
+  font-size:17px;font-weight:900;color:var(--text);
 }
-.leg-live-label{font-size:10px;color:var(--text3);margin-top:2px;}
+.leg-live-label{font-size:9px;color:var(--text3);margin-top:1px;}
 .leg-need{
-  font-size:12px;font-weight:600;text-align:right;line-height:1.5;
+  font-size:11px;font-weight:600;text-align:right;line-height:1.4;
 }
 .leg-need.safe{color:var(--green);}
 .leg-need.danger{color:var(--red);}
 .leg-need.neutral{color:var(--gold);}
-.leg-status-bar{height:3px;border-radius:0 0 var(--r) var(--r);}
+.leg-status-bar{height:2px;border-radius:0 0 var(--r-sm) var(--r-sm);}
 .leg-status-bar.won{background:var(--green);}
 .leg-status-bar.lost{background:var(--red);}
 .leg-status-bar.live{background:var(--orange);animation:pulse-bar 1.5s ease-in-out infinite;}
@@ -4947,18 +4947,18 @@ function renderManualEntry() {
     const targetStr = r.target ? (r.target.dir==='over'?`Over ${r.target.val}`:r.target.dir==='under'?`Under ${r.target.val}`:`Spread ${r.target.val}`) : '—';
     const ph = r.statType==='gameTotal'?'e.g. 210':r.statType==='spread'?'e.g. -6 (margin)':'e.g. 22';
 
-    html += `<div class="leg-result-card" style="margin-bottom:8px;">
+    html += `<div class="leg-result-card" style="margin-bottom:5px;">
       <div class="leg-result-header">
         <span class="leg-market-tag">${marketShort}</span>
-        <div class="leg-desc-text" style="font-size:12px;">${r.playerName||''} · <span style="color:var(--orange)">${targetStr}</span></div>
+        <div class="leg-desc-text" style="font-size:11px;">${r.playerName||''} · <span style="color:var(--orange)">${targetStr}</span></div>
       </div>
-      <div style="padding:8px 14px 12px;">
-        <div style="font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.8px;">Current ${statLabel}</div>
+      <div style="padding:5px 10px 8px;">
+        <div style="font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.8px;">Current ${statLabel}</div>
         <div style="display:flex;gap:8px;align-items:center;">
           <input type="number" step="0.5" id="manual-stat-${i}" placeholder="${ph}"
-            style="flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r-sm);padding:9px 12px;color:var(--text);font-size:16px;outline:none;"
+            style="flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r-sm);padding:7px 10px;color:var(--text);font-size:16px;outline:none;"
             oninput="updateManualLeg(${i})" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border2)'">
-          <div id="manual-result-${i}" style="font-size:13px;font-weight:700;color:var(--text3);flex-shrink:0;min-width:60px;text-align:right;">—</div>
+          <div id="manual-result-${i}" style="font-size:12px;font-weight:700;color:var(--text3);flex-shrink:0;min-width:56px;text-align:right;">—</div>
         </div>
       </div>
       <div class="leg-status-bar" id="manual-bar-${i}" style="background:var(--bg4);"></div>
@@ -5035,17 +5035,17 @@ function renderLiveResults() {
 
   // ── UPGRADE #6: Overall Parlay Status Banner ──
   let html = `
-    <div style="margin:0 16px 12px;background:linear-gradient(135deg,var(--bg2),var(--bg1));border:2px solid ${overallColor};border-radius:var(--r);padding:14px 16px;">
-      <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">PARLAY STATUS · ${gameLabel}</div>
+    <div style="margin:0 16px 8px;background:linear-gradient(135deg,var(--bg2),var(--bg1));border:2px solid ${overallColor};border-radius:var(--r);padding:10px 12px;">
+      <div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">PARLAY STATUS · ${gameLabel}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:${overallColor};line-height:1;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:${overallColor};line-height:1;">
           ${overallStatus==='won'?'✅ WON':overallStatus==='lost'?'❌ LOST':liveCount>0?'🔴 LIVE':'⏳ PENDING'}
         </div>
         <div style="text-align:right;">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:3px;">${liveState.results.length} LEGS TOTAL</div>
-          ${wonCount?`<div style="font-size:12px;color:var(--green);font-weight:700;">✅ ${wonCount} winning</div>`:''}
-          ${lostCount?`<div style="font-size:12px;color:var(--red);font-weight:700;">❌ ${lostCount} busted</div>`:''}
-          ${pendCount?`<div style="font-size:12px;color:var(--gold);font-weight:700;">⏳ ${pendCount} pending</div>`:''}
+          <div style="font-size:9px;color:var(--text3);margin-bottom:2px;">${liveState.results.length} LEGS TOTAL</div>
+          ${wonCount?`<div style="font-size:11px;color:var(--green);font-weight:700;">✅ ${wonCount} winning</div>`:''}
+          ${lostCount?`<div style="font-size:11px;color:var(--red);font-weight:700;">❌ ${lostCount} busted</div>`:''}
+          ${pendCount?`<div style="font-size:11px;color:var(--gold);font-weight:700;">⏳ ${pendCount} pending</div>`:''}
         </div>
       </div>
     </div>`;
@@ -5069,7 +5069,7 @@ function renderLiveResults() {
           </div>
           <span style="font-size:10px;color:var(--text3);">⚠️</span>
         </div>
-        <div style="padding:6px 14px 10px;font-size:11px;color:var(--text3);line-height:1.5;">⚠️ ${r.error}</div>
+        <div style="padding:4px 10px 8px;font-size:10px;color:var(--text3);line-height:1.4;">⚠️ ${r.error}</div>
         <div class="leg-status-bar pending"></div>
       </div>`;
       return;
@@ -5091,10 +5091,10 @@ function renderLiveResults() {
       <div class="leg-result-header">
         <span class="leg-market-tag">${ms}</span>
         <div class="leg-desc-text" style="flex:1;min-width:0;">
-          ${r.playerName?`<div style="font-weight:700;color:var(--text);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.playerName}</div>`:''}
-          <div style="font-size:11px;color:var(--text3);margin-top:1px;">Target: <span style="color:var(--gold);font-weight:600;">${targetStr}</span></div>
+          ${r.playerName?`<div style="font-weight:700;color:var(--text);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.playerName}</div>`:''}
+          <div style="font-size:10px;color:var(--text3);">Target: <span style="color:var(--gold);font-weight:600;">${targetStr}</span></div>
         </div>
-        <span style="font-size:11px;font-weight:700;color:${sc};flex-shrink:0;">${sl}</span>
+        <span style="font-size:10px;font-weight:700;color:${sc};flex-shrink:0;">${sl}</span>
       </div>
       <div class="leg-live-row">
         <div>
@@ -5102,10 +5102,10 @@ function renderLiveResults() {
           <div class="leg-live-label">${statLabel}</div>
         </div>
         <div style="text-align:right;">
-          <div class="leg-need ${r.hitting?'safe':r.status==='pending'?'neutral':'danger'}" style="font-size:13px;">
+          <div class="leg-need ${r.hitting?'safe':r.status==='pending'?'neutral':'danger'}" style="font-size:11px;">
             ${r.label||'—'}
           </div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.subLabel||''}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px;">${r.subLabel||''}</div>
           ${progressHint}
         </div>
       </div>
