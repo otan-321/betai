@@ -2281,7 +2281,7 @@ const GAME_MARKETS   = ["Moneyline","Spread","Total Points Over/Under","1st Half
 // ════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════
-let bets = JSON.parse(localStorage.getItem('nba_bets') || '[]');
+let bets = (() => { try { return JSON.parse(localStorage.getItem('nba_bets') || '[]'); } catch(e) { return []; } })();
 let flowState = {};  // current builder session
 
 // ════════════════════════════════════════════════
@@ -2292,25 +2292,73 @@ window.addEventListener('DOMContentLoaded', () => {
   window.WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
   // e.g. 'https://nba-proxy.yourname.workers.dev'
 
-  // Service Worker
+  // Service Worker — register and force update if one is waiting
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      // If there's a waiting SW, tell it to take over immediately
+      if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              newSW.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        }
+      });
+    }).catch(() => {});
+    // When a new SW takes control, reload to get fresh assets
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
   }
 
-  const firstVisit = !localStorage.getItem('nba_visited');
-  localStorage.setItem('nba_visited','1');
+  let firstVisit = false;
+  try {
+    firstVisit = !localStorage.getItem('nba_visited');
+    localStorage.setItem('nba_visited', '1');
+  } catch(e) { firstVisit = true; }
 
   function hideSplash() {
     try {
       const splash = document.getElementById('splash');
       const app = document.getElementById('app');
-      if (splash) { splash.style.opacity = '0'; splash.style.display = 'none'; }
+      // Show app immediately (behind the fading splash)
       if (app) app.classList.add('ready');
-      renderHome();
-    } catch(e) { console.error('Init error:', e); }
+      try { renderHome(); } catch(e) { console.error('renderHome error:', e); }
+      // Fade splash out, then hide it
+      if (splash) {
+        splash.style.transition = 'opacity 0.4s ease';
+        splash.style.opacity = '0';
+        setTimeout(() => {
+          if (splash) splash.style.display = 'none';
+        }, 450);
+      }
+    } catch(e) {
+      console.error('Init error:', e);
+      // Last resort: force app visible
+      try {
+        const app = document.getElementById('app');
+        const splash = document.getElementById('splash');
+        if (app) app.classList.add('ready');
+        if (splash) splash.style.display = 'none';
+      } catch(e2) {}
+    }
   }
 
-  setTimeout(hideSplash, firstVisit ? 1200 : 600);
+  setTimeout(hideSplash, firstVisit ? 1800 : 800);
+
+  // Hard failsafe: if splash still showing after 4s, force-hide it
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    const app = document.getElementById('app');
+    if (splash && splash.style.display !== 'none' && parseFloat(getComputedStyle(splash).opacity) > 0) {
+      if (app) app.classList.add('ready');
+      splash.style.display = 'none';
+      try { renderHome(); } catch(e) {}
+    }
+  }, 4000);
 });
 
 // ════════════════════════════════════════════════
@@ -3480,7 +3528,7 @@ function exportBets() {
   URL.revokeObjectURL(url);
   showToast('📦 Bets exported!', 'success');
 }
-function saveBets() { localStorage.setItem('nba_bets', JSON.stringify(bets)); }
+function saveBets() { try { localStorage.setItem('nba_bets', JSON.stringify(bets)); } catch(e) { console.warn('Storage unavailable'); } }
 
 // ════════════════════════════════════════════════
 //  TRACKER
