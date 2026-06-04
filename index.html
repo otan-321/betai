@@ -8155,13 +8155,44 @@ async function callAIProvider(systemPrompt, userMsg, maxTokens) {
 
 function parseAIJson(raw) {
   if (!raw) return null;
-  // Strip markdown fences
   let clean = raw.replace(/```json|```/g, '').trim();
-  // Extract first { ... } block
   const start = clean.indexOf('{');
   const end   = clean.lastIndexOf('}');
   if (start !== -1 && end !== -1) clean = clean.slice(start, end + 1);
   try { return JSON.parse(clean); } catch(e) { return null; }
+}
+
+// ── PROP LINE VALIDATOR — kills impossible AI-hallucinated lines before display ──
+const PROP_CAPS = { points:35, rebounds:18, assists:14, blocks:5, steals:4, '3pt made':7, '3-pointers made':7, 'threes made':7 };
+const BANNED_COMBINED = ['pra','pts+reb','pts+ast','reb+blk','p+r+a','r+b','p+a','points+rebounds','rebounds+blocks','points+assists'];
+function validatePropLine(pickText) {
+  if (!pickText) return { valid: false, reason: 'Empty pick' };
+  const low = pickText.toLowerCase();
+  // Block combined props
+  for (const combo of BANNED_COMBINED) {
+    if (low.includes(combo)) return { valid: false, reason: `Combined stat prop not allowed: ${combo.toUpperCase()}` };
+  }
+  // Check each stat cap
+  for (const [stat, cap] of Object.entries(PROP_CAPS)) {
+    if (low.includes(stat)) {
+      const match = pickText.match(/(\d+\.?\d*)\+?\s*(?:Points|Rebounds|Assists|Blocks|Steals|3PT|3-Pointer)/i);
+      if (match) {
+        const line = parseFloat(match[1]);
+        if (line > cap) return { valid: false, reason: `Impossible ${stat} line: ${line} (max ${cap})` };
+      }
+    }
+  }
+  return { valid: true };
+}
+function sanitizeParlayPicks(parsed) {
+  if (!parsed || !parsed.parlay) return parsed;
+  parsed.parlay = parsed.parlay.filter(leg => {
+    const check = validatePropLine(leg.pick || '');
+    if (!check.valid) { console.warn('🚫 Blocked invalid prop:', leg.pick, '—', check.reason); return false; }
+    if ((leg.confidence || 0) === 0) return false;
+    return true;
+  });
+  return parsed;
 }
 
 // ════════════════════════════════════════════════
@@ -8376,17 +8407,24 @@ async function suggestParlay() {
   try {
     let parsed = null;
     if (hasAI) {
-      const systemPrompt = `You are a sharp NBA betting analyst for the 2025-26 season. It is currently the 2026 NBA Finals: San Antonio Spurs (SAS) vs New York Knicks (NYK). NYK leads the series 1-0 after winning Game 1 on Jun 4 (NYK 105, SAS 95). NEXT GAME: Game 2 — NYK @ SAS, Sat Jun 6, 8:30 AM PHT. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.
+      const systemPrompt = `You are an NBA betting analyst for the 2026 NBA Finals ONLY: San Antonio Spurs (SAS) vs New York Knicks (NYK). NYK leads 1-0 after winning Game 1 on Jun 4 (NYK 105, SAS 95). NEXT: Game 2 — NYK @ SAS, Sat Jun 6, 8:30 AM PHT. ONLY output picks for the 2026 NBA Finals (SAS vs NYK). Do NOT suggest picks for any other game, team, or league. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.
 
 ABSOLUTE RULES — NEVER BREAK THESE:
-1. ONLY suggest players who are listed in the TEAM ROSTERS provided.
-2. NEVER suggest a player for a team they don't play for.
-3. If a player name is not in the roster list for that team, do NOT use them.
-4. Double-check every pick: the player name MUST appear in the roster for their team.
-5. Key SAS players: Victor Wembanyama (C, #1), Stephon Castle (PG, #5), Devin Vassell (SG, #24), Jeremy Sochan (PF, #10).
-6. Key NYK players: Jalen Brunson (PG, #11), Karl-Anthony Towns (C, #32), OG Anunoby (SF, #8), Mikal Bridges (SG, #13), Josh Hart (SF, #3).
-7. Do NOT use players like Julius Randle, RJ Barrett, or Chris Paul — they are NOT on these Finals rosters.
-8. NEVER recommend picks for Game 1 — it is already FINAL (NYK 105, SAS 95). Only recommend for Game 2 (Jun 6) and later games.`;
+1. ONLY output recommendations for 2026 NBA Finals games (SAS vs NYK). No other teams. No other games.
+2. NEVER recommend picks for Game 1 — it is FINAL (NYK 105, SAS 95). Only Game 2 (Jun 6) and later.
+3. ONLY suggest players listed in the TEAM ROSTERS provided. Never invent or reuse non-Finals players.
+4. Key SAS players: Victor Wembanyama (C, #1), Stephon Castle (PG, #5), Devin Vassell (SG, #24), Jeremy Sochan (PF, #10).
+5. Key NYK players: Jalen Brunson (PG, #11), Karl-Anthony Towns (C, #32), OG Anunoby (SF, #8), Mikal Bridges (SG, #13), Josh Hart (SF, #3).
+6. Do NOT use players like Julius Randle, RJ Barrett, or Chris Paul — they are NOT on these Finals rosters.
+7. PROP LINE HARD CAPS — NEVER suggest a line above these maximums:
+   - Points: max 35
+   - Rebounds: max 18
+   - Assists: max 14
+   - Blocks: max 5
+   - Steals: max 4
+   - 3PT Made: max 7
+8. NEVER suggest combined stat props (no PRA, no Pts+Reb, no Reb+Blk, no R+B, no P+A). Single stats only.
+9. If you cannot produce a realistic, Finals-verified pick, return confidence: 0 for that leg instead of fabricating.`;
       const userMsg = `Suggest a ${n}-leg NBA parlay.
 User preference: ${context}.${gamesContext}
 
@@ -8412,7 +8450,7 @@ Return ONLY valid JSON, no markdown:
   "riskLevel": "Moderate"
 }`;
       const raw = await callAIProvider(systemPrompt, userMsg, 1400);
-      parsed = parseAIJson(raw);
+      parsed = sanitizeParlayPicks(parseAIJson(raw));
     }
 
     if (!parsed) {
@@ -8649,7 +8687,7 @@ async function analyzeSlip() {
   try {
     let parsed = null;
     if (hasAI) {
-      const systemPrompt = `You are a sharp NBA betting analyst. Always respond with ONLY valid JSON, no markdown.`;
+      const systemPrompt = `You are a sharp NBA betting analyst for the 2026 NBA Finals ONLY (SAS vs NYK). NYK leads 1-0 (Game 1: NYK 105, SAS 95). Only validate picks that are for real NBA Finals games and real Finals roster players. PROP LINE HARD CAPS: Points max 35, Rebounds max 18, Assists max 14, Blocks max 5, Steals max 4, 3PT Made max 7. NEVER accept combined stat props (PRA, R+B, P+A etc). Flag any line above these caps as FADE THIS with reason "Impossible prop line". Always respond with ONLY valid JSON, no markdown.`;
       const userMsg = `Analyze this NBA bet slip with ${lines.length} legs:
 ${lines.map((l,i)=>`${i+1}. ${l}`).join('\n')}
 
