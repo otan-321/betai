@@ -784,8 +784,8 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 
 /* UPDATE BANNER */
 #update-banner{
-  position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 10px);
-  left:50%;transform:translateX(-50%) translateY(120px);
+  position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  left:50%;transform:translateX(-50%) translateY(140px);
   width:calc(100% - 32px);max-width:448px;
   background:var(--bg1);border:1px solid rgba(255,107,26,0.45);
   border-radius:var(--r);
@@ -2350,6 +2350,8 @@ window.addEventListener('DOMContentLoaded', () => {
         splash.style.display = 'none';
         // Show update banner now if a new SW was already waiting during boot
         if (pendingSW) showUpdateBanner();
+        // ── TEST ONLY: force banner visible to check positioning ──
+        showUpdateBanner();
       }, 500);
     }
   }
