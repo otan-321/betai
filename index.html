@@ -795,7 +795,10 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
   transition:transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
 }
+/* shown = slide in; hidden = slide out; default hidden until update detected */
 #update-banner.show{transform:translateX(-50%) translateY(0);}
+/* once shown, keep it permanently until user acts */
+#update-banner.show.permanent{pointer-events:auto;}
 #update-banner .ub-icon{font-size:20px;flex-shrink:0;}
 #update-banner .ub-text{flex:1;min-width:0;}
 #update-banner .ub-title{
@@ -1888,7 +1891,6 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <div class="ub-sub">A GitHub update is ready — refresh to get the latest.</div>
   </div>
   <button class="ub-btn" onclick="applyUpdate()">UPDATE</button>
-  <button class="ub-dismiss" onclick="dismissUpdate()" aria-label="Dismiss">&times;</button>
 </div>
 
 <script>
@@ -2359,7 +2361,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function showUpdateBanner() {
     const b = document.getElementById('update-banner');
-    if (b) b.classList.add('show');
+    if (b) { b.classList.add('show'); b.classList.add('permanent'); }
   }
 
   if ('serviceWorker' in navigator) {
@@ -5954,10 +5956,6 @@ function applyUpdate() {
   } else {
     window.location.reload();
   }
-}
-function dismissUpdate() {
-  const b = document.getElementById('update-banner');
-  if (b) b.classList.remove('show');
 }
 
 // ── FLEX WIN CARD ────────────────────────────────
