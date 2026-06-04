@@ -4431,7 +4431,7 @@ async function renderSchedulePicker() {
 
   el.innerHTML = `<div style="padding:24px 20px;text-align:center;">
     <div style="font-size:36px;margin-bottom:10px;animation:bounce 1s ease-in-out infinite;">🏀</div>
-    <div style="color:var(--text3);font-size:13px;">Loading NBA schedule…</div>
+    <div style="color:var(--text3);font-size:13px;">Loading NBA schedule for ±7 days...</div>
   </div>`;
   document.getElementById('live-status-chip').textContent = 'Schedule';
 
@@ -4440,24 +4440,41 @@ async function renderSchedulePicker() {
   for (let i = -7; i <= 7; i++) {
     dates.push(getDateOffsetPHT(i));
   }
+  console.log('📅 Searching dates:', dates.join(', '));
 
   // Fetch all dates in parallel, collect games
   let allGames = [];
   if (liveState.scheduleGames) {
     allGames = liveState.scheduleGames;
+    console.log('📦 Using cached games:', allGames.length);
   } else {
     try {
+      console.log('🔄 Fetching games for', dates.length, 'dates...');
       const fetches = dates.map(async ds => {
         try {
           const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${ds}`);
-          return (data.events || []).map(g => ({ ...g, _fetchedDate: ds }));
-        } catch(e) { return []; }
+          const games = (data.events || []).map(g => ({ ...g, _fetchedDate: ds }));
+          console.log(`  📆 ${ds}: ${games.length} games`);
+          return games;
+        } catch(e) {
+          console.warn(`  ❌ ${ds}: failed -`, e.message);
+          return [];
+        }
       });
       const results = await Promise.all(fetches);
       allGames = results.flat();
       liveState.scheduleGames = allGames;
+      console.log('✅ Total games loaded:', allGames.length);
     } catch(e) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load schedule.<br><span style="color:var(--orange);cursor:pointer;" onclick="liveState.scheduleGames=null;renderLivePage()">Tap to retry</span></div></div>`;
+      console.error('💥 Schedule fetch error:', e);
+      el.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-text">
+          Could not load NBA schedule.<br>
+          <span style="color:var(--text3);font-size:11px;margin-top:8px;display:block;">Error: ${e.message}</span>
+          <span style="color:var(--orange);cursor:pointer;font-size:12px;margin-top:12px;display:block;" onclick="liveState.scheduleGames=null;renderLivePage()">🔄 Tap to retry</span>
+        </div>
+      </div>`;
       return;
     }
   }
@@ -4497,6 +4514,8 @@ async function renderSchedulePicker() {
   // Sort
   pastGames.sort((a,b) => b.date.localeCompare(a.date));
   upcomingGames.sort((a,b) => a.date.localeCompare(b.date));
+  
+  console.log('📊 Games breakdown - TODAY:', todayGames.length, '| UPCOMING:', upcomingGames.length, '| RECENT:', pastGames.length);
 
   function gameCard(g) {
     const aLogo = teamLogoImg(g.awayAbbr, 32);
@@ -4784,43 +4803,81 @@ async function runLiveCheck(silent = false) {
 }
 
 // ── CORS-PROXY ESPN FETCHER ──
+// CORS Proxies in order of reliability
 const CORS_PROXIES = [
+  // api.allorigins.win - most reliable for ESPN
+  url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  // corsproxy.io - backup
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
 ];
 
 async function fetchWithProxy(url) {
-  // Get WORKER_URL from the window or use the configured value
-  let workerUrl = window.WORKER_URL || 'https://shrill-glitter-923e.germanogerale.workers.dev';
+  console.log('🌐 Fetching NBA data for:', url.split('?dates=')[1] || 'schedule');
   
-  // Try Cloudflare Worker FIRST (most reliable)
+  // STRATEGY 1: Try direct CORS first (fastest if it works)
   try {
-    const espnUrl = url.replace('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/', '');
-    const workerRequest = `${workerUrl}?path=${encodeURIComponent(espnUrl)}`;
-    const r = await fetch(workerRequest, { mode: 'cors', cache: 'no-store' });
+    console.log('📡 Trying direct CORS fetch...');
+    const r = await fetch(url, { mode: 'cors', cache: 'no-store' });
     if (r.ok) {
       const data = await r.json();
-      if (data && !data.error) return data;
+      console.log('✅ Direct CORS successful! Games found:', data.events?.length || 0);
+      return data;
     }
   } catch(e) {
-    console.warn('Cloudflare Worker failed, trying CORS proxies...', e.message);
+    console.warn('⚠️ Direct CORS failed:', e.message);
   }
   
-  // Try direct CORS call
-  try {
-    const r = await fetch(url, { mode: 'cors', cache: 'no-store' });
-    if (r.ok) return await r.json();
-  } catch(e) {}
-  
-  // Fall back to CORS proxies
-  for (const proxy of CORS_PROXIES) {
+  // STRATEGY 2: Try CORS Proxy services
+  for (let i = 0; i < CORS_PROXIES.length; i++) {
     try {
-      const r = await fetch(proxy(url), { cache: 'no-store' });
-      if (r.ok) return await r.json();
-    } catch(e) {}
+      const proxyUrl = CORS_PROXIES[i](url);
+      console.log(`📡 Trying CORS proxy ${i + 1}/${CORS_PROXIES.length}...`);
+      const r = await fetch(proxyUrl, { cache: 'no-store' });
+      if (r.ok) {
+        let data;
+        // Handle different proxy response formats
+        if (proxyUrl.includes('allorigins')) {
+          const wrapper = await r.json();
+          if (wrapper.contents) {
+            data = JSON.parse(wrapper.contents);
+          } else {
+            data = wrapper;
+          }
+        } else {
+          data = await r.json();
+        }
+        if (data && (data.events || data.sports)) {
+          console.log(`✅ CORS proxy ${i + 1} successful! Games found:`, data.events?.length || 0);
+          return data;
+        }
+      }
+    } catch(e) {
+      console.warn(`⚠️ CORS proxy ${i + 1} failed:`, e.message);
+    }
   }
   
-  throw new Error('Failed to fetch NBA data. Check your Worker URL configuration or internet connection.');
+  // STRATEGY 3: Cloudflare Worker (if deployed)
+  try {
+    const workerUrl = window.WORKER_URL || 'https://shrill-glitter-923e.germanogerale.workers.dev';
+    console.log('📡 Trying Cloudflare Worker:', workerUrl);
+    const endpoint = url.split('?')[1] || 'scoreboard';
+    const workerRequest = `${workerUrl}?path=scoreboard&${endpoint}`;
+    const r = await fetch(workerRequest, { mode: 'cors' });
+    if (r.ok) {
+      const data = await r.json();
+      if (data && !data.error && data.events) {
+        console.log('✅ Cloudflare Worker successful! Games found:', data.events?.length);
+        return data;
+      }
+    }
+  } catch(e) {
+    console.warn('⚠️ Cloudflare Worker failed:', e.message);
+  }
+  
+  // If all methods fail, show detailed error
+  const errorMsg = `Failed to fetch NBA schedule. All proxy methods failed. Check browser console for details.`;
+  console.error('❌ ' + errorMsg);
+  throw new Error(errorMsg);
 }
 
 // New: use the pre-selected game from schedule picker
