@@ -2266,7 +2266,7 @@ let flowState = {};  // current builder session
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   // ── CONFIG: paste your Cloudflare Worker URL here after deploying worker.js ──
-  const WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
+  window.WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
   // e.g. 'https://nba-proxy.yourname.workers.dev'
 
   // Service Worker
@@ -4790,17 +4790,37 @@ const CORS_PROXIES = [
 ];
 
 async function fetchWithProxy(url) {
+  // Get WORKER_URL from the window or use the configured value
+  let workerUrl = window.WORKER_URL || 'https://shrill-glitter-923e.germanogerale.workers.dev';
+  
+  // Try Cloudflare Worker FIRST (most reliable)
+  try {
+    const espnUrl = url.replace('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/', '');
+    const workerRequest = `${workerUrl}?path=${encodeURIComponent(espnUrl)}`;
+    const r = await fetch(workerRequest, { mode: 'cors', cache: 'no-store' });
+    if (r.ok) {
+      const data = await r.json();
+      if (data && !data.error) return data;
+    }
+  } catch(e) {
+    console.warn('Cloudflare Worker failed, trying CORS proxies...', e.message);
+  }
+  
+  // Try direct CORS call
   try {
     const r = await fetch(url, { mode: 'cors', cache: 'no-store' });
     if (r.ok) return await r.json();
   } catch(e) {}
+  
+  // Fall back to CORS proxies
   for (const proxy of CORS_PROXIES) {
     try {
       const r = await fetch(proxy(url), { cache: 'no-store' });
       if (r.ok) return await r.json();
     } catch(e) {}
   }
-  throw new Error('Network unavailable');
+  
+  throw new Error('Failed to fetch NBA data. Check your Worker URL configuration or internet connection.');
 }
 
 // New: use the pre-selected game from schedule picker
