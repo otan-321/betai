@@ -1549,12 +1549,14 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 
   <!-- ══════════════════════════ PAGE: AI BET ══════════════════════════ -->
   <div class="page" id="page-aibet">
-    <div class="page-header">
-      <h1>🤖 AI BET</h1>
-      <div class="date-chip" id="aibet-date-chip"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;padding:40px 24px;text-align:center;">
+      <div style="font-size:64px;margin-bottom:20px;animation:bounce 1.4s ease-in-out infinite;">🏀</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;letter-spacing:2px;color:var(--orange);text-shadow:0 0 32px var(--orange-glow);margin-bottom:8px;">UPCOMING UPDATE</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:24px;">Coming Soon</div>
+      <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:18px 22px;max-width:300px;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">AI Bet features are being upgraded. Stay tuned for a smarter, sharper experience. 🏀🔥</div>
+      </div>
     </div>
-    <div style="height:8px"></div>
-    <div id="aibet-content"></div>
   </div>
 
   <!-- ══════════════════════════ PAGE: TRACKER ══════════════════════════ -->
@@ -1636,12 +1638,8 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     </div>
   </div>
 
-  <!-- ══════════════════════════ PAGE: SETTINGS ══════════════════════════ -->
-  <div class="page" id="page-settings">
-    <div class="page-header"><h1>⚙️ SETTINGS</h1></div>
-    <div style="height:12px"></div>
-    <div id="settings-page-content"></div>
-  </div>
+  <!-- ══════════════════════════ PAGE: SETTINGS (hidden) ══════════════════════════ -->
+  <div class="page" id="page-settings" style="display:none!important;"></div>
 
   <!-- ══════════════════════════ BOTTOM NAV ══════════════════════════ -->
   <nav>
@@ -1649,7 +1647,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home
     </button>
-    <button id="nav-aibet" onclick="showPage('aibet')">
+    <button id="nav-soon" onclick="showPage('soon')">
       <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 015 5c0 2.4-1.7 4.4-4 4.9V13h2v2h-2v2h2v2h-2v1a1 1 0 01-2 0v-1H9v-2h2v-2H9v-2h2v-1.1C8.7 11.4 7 9.4 7 7a5 5 0 015-5z" stroke-width="1.5"/></svg>
       AI BET
     </button>
@@ -1660,10 +1658,6 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <button id="nav-tracker" onclick="showPage('tracker')">
       <svg viewBox="0 0 24 24"><path d="M9 12h6M9 8h6M9 16h4M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
       Tracker
-    </button>
-    <button id="nav-settings" onclick="showPage('settings')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      Settings
     </button>
 
   </nav>
@@ -2135,12 +2129,12 @@ const ROSTERS = {
     {name:"Kira Lewis Jr.",pos:"PG",num:13}
   ],
   NYK:[
-    {name:"Jalen Brunson",pos:"PG",num:11},{name:"Karl-Anthony Towns",pos:"C",num:32},
-    {name:"OG Anunoby",pos:"SF",num:8},{name:"Mikal Bridges",pos:"SG",num:13},
+    {name:"Jalen Brunson",pos:"PG",num:11},{name:"Julius Randle",pos:"PF",num:30},
+    {name:"RJ Barrett",pos:"SG",num:9},{name:"Mitchell Robinson",pos:"C",num:23},
     {name:"Josh Hart",pos:"SF",num:3},{name:"Donte DiVincenzo",pos:"SG",num:0},
-    {name:"Mitchell Robinson",pos:"C",num:23},{name:"Precious Achiuwa",pos:"PF",num:5},
-    {name:"Miles McBride",pos:"PG",num:2},{name:"Isaiah Hartenstein",pos:"C",num:55},
-    {name:"Cameron Payne",pos:"PG",num:15},{name:"Kevin McCullar Jr.",pos:"SG",num:1},
+    {name:"OG Anunoby",pos:"SF",num:8},{name:"Isaiah Hartenstein",pos:"C",num:55},
+    {name:"Immanuel Quickley",pos:"PG",num:5},{name:"Precious Achiuwa",pos:"PF",num:5},
+    {name:"Bojan Bogdanovic",pos:"SF",num:44},{name:"Kevin McCullar Jr.",pos:"SG",num:1},
     {name:"Jericho Sims",pos:"C",num:45},{name:"Jacob Toppin",pos:"PF",num:7},
     {name:"Landry Shamet",pos:"SG",num:20},{name:"Duane Washington Jr.",pos:"PG",num:5},
     {name:"Jaylen Martin",pos:"SF",num:6}
@@ -2212,15 +2206,15 @@ const ROSTERS = {
     {name:"Richaun Holmes",pos:"C",num:22}
   ],
   SAS:[
-    {name:"Victor Wembanyama",pos:"C",num:1},{name:"Stephon Castle",pos:"PG",num:5},
-    {name:"Devin Vassell",pos:"SG",num:24},{name:"Jeremy Sochan",pos:"PF",num:10},
-    {name:"Zach Collins",pos:"C",num:23},{name:"Keldon Johnson",pos:"SF",num:3},
-    {name:"Blake Wesley",pos:"SG",num:14},{name:"Julian Champagnie",pos:"SF",num:11},
+    {name:"Victor Wembanyama",pos:"C",num:1},{name:"Devin Vassell",pos:"SG",num:24},
+    {name:"Jeremy Sochan",pos:"PF",num:10},{name:"Keldon Johnson",pos:"SF",num:3},
+    {name:"Stephon Castle",pos:"PG",num:5},{name:"Chris Paul",pos:"PG",num:3},
+    {name:"Zach Collins",pos:"C",num:23},{name:"Julian Champagnie",pos:"SF",num:11},
     {name:"Tre Jones",pos:"PG",num:33},{name:"Malaki Branham",pos:"SG",num:22},
-    {name:"Sidy Cissoko",pos:"SG",num:14},{name:"Charles Bassey",pos:"C",num:28},
-    {name:"Harrison Ingram",pos:"SF",num:8},{name:"Dominick Barlow",pos:"PF",num:6},
-    {name:"David Duke Jr.",pos:"SG",num:3},{name:"Cedi Osman",pos:"SF",num:16},
-    {name:"Ricky Council IV",pos:"SG",num:11}
+    {name:"Blake Wesley",pos:"SG",num:14},{name:"Sidy Cissoko",pos:"SG",num:14},
+    {name:"Cedi Osman",pos:"SF",num:16},{name:"Charles Bassey",pos:"C",num:28},
+    {name:"Harrison Ingram",pos:"SF",num:8},{name:"David Duke Jr.",pos:"SG",num:3},
+    {name:"Dominick Barlow",pos:"PF",num:6}
   ],
   TOR:[
     {name:"Scottie Barnes",pos:"PF",num:4},{name:"RJ Barrett",pos:"SG",num:9},
@@ -2257,23 +2251,6 @@ const ROSTERS = {
   ],
 };
 
-// ════════════════════════════════════════════════
-//  2026 NBA FINALS — HARDCODED FEATURED GAME
-// ════════════════════════════════════════════════
-const NBA_FINALS_2026 = {
-  id: 'finals2026',
-  date: getTodayPHT(),
-  awayAbbr: 'SAS',
-  homeAbbr: 'NYK',
-  awayName: 'Spurs',
-  homeName: 'Knicks',
-  inProgress: false,
-  completed: false,
-  isFinals: true,
-  tipoff: new Date().toISOString(),
-  statusDisplay: '2026 NBA FINALS',
-};
-
 const PLAYER_MARKETS = ["Points","Rebounds","Assists","3PT Made","PRA (Pts+Reb+Ast)","Steals","Blocks"];
 const TEAM_MARKETS   = ["Team Total Points","Team Win","Handicap / Spread","Team 3PT Made","First Quarter Winner"];
 const GAME_MARKETS   = ["Moneyline","Spread","Total Points Over/Under","1st Half Winner","2nd Half Total","Halftime Result"];
@@ -2281,7 +2258,7 @@ const GAME_MARKETS   = ["Moneyline","Spread","Total Points Over/Under","1st Half
 // ════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════
-let bets = (() => { try { return JSON.parse(localStorage.getItem('nba_bets') || '[]'); } catch(e) { return []; } })();
+let bets = JSON.parse(localStorage.getItem('nba_bets') || '[]');
 let flowState = {};  // current builder session
 
 // ════════════════════════════════════════════════
@@ -2289,82 +2266,37 @@ let flowState = {};  // current builder session
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   // ── CONFIG: paste your Cloudflare Worker URL here after deploying worker.js ──
-  window.WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
+  const WORKER_URL = 'https://shrill-glitter-923e.germanogerale.workers.dev';
   // e.g. 'https://nba-proxy.yourname.workers.dev'
 
-  // Service Worker — register and force update if one is waiting
+  // Service Worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
-      // If there's a waiting SW, tell it to take over immediately
-      if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        if (newSW) {
-          newSW.addEventListener('statechange', () => {
-            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              newSW.postMessage({ type: 'SKIP_WAITING' });
-            }
-          });
-        }
-      });
-    }).catch(() => {});
-    // When a new SW takes control, reload to get fresh assets
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
-    });
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 
-  let firstVisit = false;
-  try {
-    firstVisit = !localStorage.getItem('nba_visited');
-    localStorage.setItem('nba_visited', '1');
-  } catch(e) { firstVisit = true; }
+  const firstVisit = !localStorage.getItem('nba_visited');
+  localStorage.setItem('nba_visited','1');
 
   function hideSplash() {
     try {
       const splash = document.getElementById('splash');
       const app = document.getElementById('app');
-      // Show app immediately (behind the fading splash)
+      if (splash) { splash.style.opacity = '0'; splash.style.display = 'none'; }
       if (app) app.classList.add('ready');
-      try { renderHome(); } catch(e) { console.error('renderHome error:', e); }
-      // Fade splash out, then hide it
-      if (splash) {
-        splash.style.transition = 'opacity 0.4s ease';
-        splash.style.opacity = '0';
-        setTimeout(() => {
-          if (splash) splash.style.display = 'none';
-        }, 450);
-      }
-    } catch(e) {
-      console.error('Init error:', e);
-      // Last resort: force app visible
-      try {
-        const app = document.getElementById('app');
-        const splash = document.getElementById('splash');
-        if (app) app.classList.add('ready');
-        if (splash) splash.style.display = 'none';
-      } catch(e2) {}
-    }
+      renderHome();
+    } catch(e) { console.error('Init error:', e); }
   }
 
-  setTimeout(hideSplash, firstVisit ? 1800 : 800);
-
-  // Hard failsafe: if splash still showing after 4s, force-hide it
-  setTimeout(() => {
-    const splash = document.getElementById('splash');
-    const app = document.getElementById('app');
-    if (splash && splash.style.display !== 'none' && parseFloat(getComputedStyle(splash).opacity) > 0) {
-      if (app) app.classList.add('ready');
-      splash.style.display = 'none';
-      try { renderHome(); } catch(e) {}
-    }
-  }, 4000);
+  setTimeout(hideSplash, firstVisit ? 1200 : 600);
 });
 
 // ════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════
 function showPage(p) {
+  // Redirect old tabs to the coming soon page
+  if (p === 'aibet' || p === 'settings') p = 'soon';
+
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
   document.getElementById('page-' + p)?.classList.add('active');
@@ -2376,11 +2308,6 @@ function showPage(p) {
   if (p === 'tracker') { renderTracker(); updateLiveBadge(); }
   if (p === 'analytics') renderAnalytics();
   if (p === 'live') renderLivePage();
-  if (p === 'aibet') renderAIBetPage();
-  if (p === 'settings') {
-    renderSettingsPageHTML();
-    renderSettingsPage();
-  }
 }
 
 // ════════════════════════════════════════════════
@@ -2594,15 +2521,12 @@ const PLAYER_ROLES = {
   'Aaron Wiggins':           { avgMin:22, tier:'rotation',pts:8.7,  reb:3.1, ast:1.2, tpm:1.4 },
   'Kenrich Williams':        { avgMin:20, tier:'rotation',pts:6.8,  reb:4.1, ast:1.9, tpm:0.8 },
   // SA Spurs
-  // San Antonio Spurs — 2025-26 NBA Finals
-  'Victor Wembanyama':       { avgMin:34, tier:'star',    pts:27.8, reb:11.9,ast:4.5, tpm:2.8 },
-  'Stephon Castle':          { avgMin:32, tier:'star',    pts:19.4, reb:4.2, ast:6.8, tpm:2.1 },
-  'Devin Vassell':           { avgMin:30, tier:'starter', pts:18.1, reb:4.1, ast:3.4, tpm:2.9 },
-  'Jeremy Sochan':           { avgMin:29, tier:'starter', pts:14.7, reb:6.8, ast:3.2, tpm:1.4 },
-  'Keldon Johnson':          { avgMin:26, tier:'rotation',pts:12.3, reb:5.0, ast:1.8, tpm:1.5 },
-  'Zach Collins':            { avgMin:22, tier:'rotation',pts:10.2, reb:6.5, ast:2.4, tpm:0.7 },
-  'Blake Wesley':            { avgMin:18, tier:'rotation',pts:9.2,  reb:2.6, ast:2.9, tpm:1.3 },
-  'Julian Champagnie':       { avgMin:20, tier:'rotation',pts:8.8,  reb:3.4, ast:1.1, tpm:1.9 },
+  'Victor Wembanyama':       { avgMin:32, tier:'star',    pts:25.4, reb:10.7,ast:3.9, tpm:2.1 },
+  'Devin Vassell':           { avgMin:30, tier:'starter', pts:16.2, reb:3.8, ast:3.1, tpm:2.2 },
+  'Keldon Johnson':          { avgMin:28, tier:'starter', pts:13.1, reb:5.2, ast:2.1, tpm:1.3 },
+  'Harrison Barnes':         { avgMin:26, tier:'starter', pts:11.8, reb:5.4, ast:1.7, tpm:1.6 },
+  'Zach Collins':            { avgMin:22, tier:'rotation',pts:9.4,  reb:6.1, ast:2.2, tpm:0.6 },
+  'Blake Wesley':            { avgMin:18, tier:'rotation',pts:8.1,  reb:2.4, ast:2.6, tpm:1.0 },
   // Dallas Mavericks
   'Luka Doncic':             { avgMin:35, tier:'star',    pts:28.6, reb:8.7, ast:8.0, tpm:3.3 },
   'Kyrie Irving':            { avgMin:33, tier:'star',    pts:24.0, reb:4.4, ast:5.0, tpm:2.3 },
@@ -2679,15 +2603,12 @@ const PLAYER_ROLES = {
   'Jaden McDaniels':         { avgMin:28, tier:'starter', pts:13.2, reb:5.0, ast:1.8, tpm:1.5 },
   'Mike Conley':             { avgMin:24, tier:'rotation',pts:8.5,  reb:2.7, ast:5.1, tpm:1.8 },
   // New York Knicks
-  // New York Knicks — 2025-26 NBA Finals
-  'Jalen Brunson':           { avgMin:36, tier:'star',    pts:29.6, reb:3.9, ast:8.1, tpm:2.9 },
-  'Karl-Anthony Towns':      { avgMin:34, tier:'star',    pts:26.4, reb:14.1,ast:3.4, tpm:2.3 },
-  'OG Anunoby':              { avgMin:33, tier:'star',    pts:17.8, reb:5.2, ast:2.3, tpm:3.1 },
-  'Mikal Bridges':           { avgMin:35, tier:'starter', pts:19.2, reb:4.3, ast:3.6, tpm:2.8 },
-  'Josh Hart':               { avgMin:31, tier:'starter', pts:13.4, reb:10.2,ast:5.1, tpm:1.5 },
-  'Donte DiVincenzo':        { avgMin:24, tier:'rotation',pts:11.2, reb:3.4, ast:2.8, tpm:3.0 },
-  'Miles McBride':           { avgMin:20, tier:'rotation',pts:9.6,  reb:2.8, ast:3.2, tpm:1.8 },
-  'Mitchell Robinson':       { avgMin:20, tier:'rotation',pts:8.4,  reb:9.1, ast:0.9, tpm:0.0 },
+  'Jalen Brunson':           { avgMin:34, tier:'star',    pts:27.5, reb:3.6, ast:7.6, tpm:2.6 },
+  'Karl-Anthony Towns':      { avgMin:33, tier:'star',    pts:24.0, reb:13.5,ast:3.0, tpm:2.0 },
+  'OG Anunoby':              { avgMin:32, tier:'starter', pts:15.1, reb:4.8, ast:2.0, tpm:2.6 },
+  'Mikal Bridges':           { avgMin:34, tier:'starter', pts:13.6, reb:3.9, ast:3.0, tpm:2.0 },
+  'Josh Hart':               { avgMin:31, tier:'starter', pts:12.0, reb:9.0, ast:4.4, tpm:1.3 },
+  'Donte DiVincenzo':        { avgMin:23, tier:'rotation',pts:8.6,  reb:3.1, ast:2.2, tpm:2.3 },
   // Miami Heat
   'Bam Adebayo':             { avgMin:33, tier:'star',    pts:19.6, reb:11.0,ast:3.6, tpm:0.1 },
   'Tyler Herro':             { avgMin:32, tier:'star',    pts:24.6, reb:4.8, ast:5.2, tpm:2.8 },
@@ -3528,7 +3449,7 @@ function exportBets() {
   URL.revokeObjectURL(url);
   showToast('📦 Bets exported!', 'success');
 }
-function saveBets() { try { localStorage.setItem('nba_bets', JSON.stringify(bets)); } catch(e) { console.warn('Storage unavailable'); } }
+function saveBets() { localStorage.setItem('nba_bets', JSON.stringify(bets)); }
 
 // ════════════════════════════════════════════════
 //  TRACKER
@@ -4510,7 +4431,7 @@ async function renderSchedulePicker() {
 
   el.innerHTML = `<div style="padding:24px 20px;text-align:center;">
     <div style="font-size:36px;margin-bottom:10px;animation:bounce 1s ease-in-out infinite;">🏀</div>
-    <div style="color:var(--text3);font-size:13px;">Loading NBA schedule for ±7 days...</div>
+    <div style="color:var(--text3);font-size:13px;">Loading NBA schedule…</div>
   </div>`;
   document.getElementById('live-status-chip').textContent = 'Schedule';
 
@@ -4519,41 +4440,24 @@ async function renderSchedulePicker() {
   for (let i = -7; i <= 7; i++) {
     dates.push(getDateOffsetPHT(i));
   }
-  console.log('📅 Searching dates:', dates.join(', '));
 
   // Fetch all dates in parallel, collect games
   let allGames = [];
   if (liveState.scheduleGames) {
     allGames = liveState.scheduleGames;
-    console.log('📦 Using cached games:', allGames.length);
   } else {
     try {
-      console.log('🔄 Fetching games for', dates.length, 'dates...');
       const fetches = dates.map(async ds => {
         try {
           const data = await fetchWithProxy(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${ds}`);
-          const games = (data.events || []).map(g => ({ ...g, _fetchedDate: ds }));
-          console.log(`  📆 ${ds}: ${games.length} games`);
-          return games;
-        } catch(e) {
-          console.warn(`  ❌ ${ds}: failed -`, e.message);
-          return [];
-        }
+          return (data.events || []).map(g => ({ ...g, _fetchedDate: ds }));
+        } catch(e) { return []; }
       });
       const results = await Promise.all(fetches);
       allGames = results.flat();
       liveState.scheduleGames = allGames;
-      console.log('✅ Total games loaded:', allGames.length);
     } catch(e) {
-      console.error('💥 Schedule fetch error:', e);
-      el.innerHTML = `<div class="empty-state">
-        <div class="empty-icon">⚠️</div>
-        <div class="empty-text">
-          Could not load NBA schedule.<br>
-          <span style="color:var(--text3);font-size:11px;margin-top:8px;display:block;">Error: ${e.message}</span>
-          <span style="color:var(--orange);cursor:pointer;font-size:12px;margin-top:12px;display:block;" onclick="liveState.scheduleGames=null;renderLivePage()">🔄 Tap to retry</span>
-        </div>
-      </div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load schedule.<br><span style="color:var(--orange);cursor:pointer;" onclick="liveState.scheduleGames=null;renderLivePage()">Tap to retry</span></div></div>`;
       return;
     }
   }
@@ -4593,8 +4497,6 @@ async function renderSchedulePicker() {
   // Sort
   pastGames.sort((a,b) => b.date.localeCompare(a.date));
   upcomingGames.sort((a,b) => a.date.localeCompare(b.date));
-  
-  console.log('📊 Games breakdown - TODAY:', todayGames.length, '| UPCOMING:', upcomingGames.length, '| RECENT:', pastGames.length);
 
   function gameCard(g) {
     const aLogo = teamLogoImg(g.awayAbbr, 32);
@@ -4882,81 +4784,23 @@ async function runLiveCheck(silent = false) {
 }
 
 // ── CORS-PROXY ESPN FETCHER ──
-// CORS Proxies in order of reliability
 const CORS_PROXIES = [
-  // api.allorigins.win - most reliable for ESPN
-  url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-  // corsproxy.io - backup
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
 ];
 
 async function fetchWithProxy(url) {
-  console.log('🌐 Fetching NBA data for:', url.split('?dates=')[1] || 'schedule');
-  
-  // STRATEGY 1: Try direct CORS first (fastest if it works)
   try {
-    console.log('📡 Trying direct CORS fetch...');
     const r = await fetch(url, { mode: 'cors', cache: 'no-store' });
-    if (r.ok) {
-      const data = await r.json();
-      console.log('✅ Direct CORS successful! Games found:', data.events?.length || 0);
-      return data;
-    }
-  } catch(e) {
-    console.warn('⚠️ Direct CORS failed:', e.message);
-  }
-  
-  // STRATEGY 2: Try CORS Proxy services
-  for (let i = 0; i < CORS_PROXIES.length; i++) {
+    if (r.ok) return await r.json();
+  } catch(e) {}
+  for (const proxy of CORS_PROXIES) {
     try {
-      const proxyUrl = CORS_PROXIES[i](url);
-      console.log(`📡 Trying CORS proxy ${i + 1}/${CORS_PROXIES.length}...`);
-      const r = await fetch(proxyUrl, { cache: 'no-store' });
-      if (r.ok) {
-        let data;
-        // Handle different proxy response formats
-        if (proxyUrl.includes('allorigins')) {
-          const wrapper = await r.json();
-          if (wrapper.contents) {
-            data = JSON.parse(wrapper.contents);
-          } else {
-            data = wrapper;
-          }
-        } else {
-          data = await r.json();
-        }
-        if (data && (data.events || data.sports)) {
-          console.log(`✅ CORS proxy ${i + 1} successful! Games found:`, data.events?.length || 0);
-          return data;
-        }
-      }
-    } catch(e) {
-      console.warn(`⚠️ CORS proxy ${i + 1} failed:`, e.message);
-    }
+      const r = await fetch(proxy(url), { cache: 'no-store' });
+      if (r.ok) return await r.json();
+    } catch(e) {}
   }
-  
-  // STRATEGY 3: Cloudflare Worker (if deployed)
-  try {
-    const workerUrl = window.WORKER_URL || 'https://shrill-glitter-923e.germanogerale.workers.dev';
-    console.log('📡 Trying Cloudflare Worker:', workerUrl);
-    const endpoint = url.split('?')[1] || 'scoreboard';
-    const workerRequest = `${workerUrl}?path=scoreboard&${endpoint}`;
-    const r = await fetch(workerRequest, { mode: 'cors' });
-    if (r.ok) {
-      const data = await r.json();
-      if (data && !data.error && data.events) {
-        console.log('✅ Cloudflare Worker successful! Games found:', data.events?.length);
-        return data;
-      }
-    }
-  } catch(e) {
-    console.warn('⚠️ Cloudflare Worker failed:', e.message);
-  }
-  
-  // If all methods fail, show detailed error
-  const errorMsg = `Failed to fetch NBA schedule. All proxy methods failed. Check browser console for details.`;
-  console.error('❌ ' + errorMsg);
-  throw new Error(errorMsg);
+  throw new Error('Network unavailable');
 }
 
 // New: use the pre-selected game from schedule picker
@@ -5558,13 +5402,6 @@ async function fetchAIBetGames() {
   });
   // Sort by tipoff time
   out.sort((a,b) => a.tipoff.localeCompare(b.tipoff));
-
-  // ── Always inject 2026 NBA Finals at the top ──
-  const finalsAlreadyIn = out.some(g => g.awayAbbr === 'SAS' && g.homeAbbr === 'NYK');
-  if (!finalsAlreadyIn) {
-    out.unshift({ ...NBA_FINALS_2026 });
-  }
-
   aiBetState.games = out;
   return out;
 }
@@ -5580,124 +5417,53 @@ async function renderAIBetGamePicker() {
 
   const games = await fetchAIBetGames();
 
-  // Separate Finals from other games
-  const finalsGame = games.find(g => g.isFinals || (g.awayAbbr === 'SAS' && g.homeAbbr === 'NYK'));
-  const otherGames = games.filter(g => !g.isFinals && !(g.awayAbbr === 'SAS' && g.homeAbbr === 'NYK'));
-
-  let html = `<div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px;">
-    <div style="font-size:11px;color:var(--text3);">Tap a game to get AI picks</div>
-    <button onclick="aiBetState.games=null;renderAIBetPage()" style="background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 12px;color:var(--orange);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🔄 REFRESH</button>
-  </div>`;
-
-  // ── 2026 NBA FINALS FEATURED CARD ──
-  if (finalsGame) {
-    const aLogo = teamLogoImg(finalsGame.awayAbbr, 44);
-    const hLogo = teamLogoImg(finalsGame.homeAbbr, 44);
-    const gJson = JSON.stringify(finalsGame).replace(/"/g,'&quot;');
-    html += `
-    <div class="sec-label" style="color:var(--gold);letter-spacing:3px;">🏆 2026 NBA FINALS</div>
-    <div onclick="selectAIBetGame(${gJson})" style="
-      margin:0 16px 14px;
-      background:linear-gradient(135deg,#0d1220 0%,rgba(245,200,66,0.12) 50%,#0d1220 100%);
-      border:2px solid var(--gold);
-      border-radius:var(--r);
-      padding:18px 16px;
-      cursor:pointer;
-      position:relative;
-      overflow:hidden;
-      box-shadow:0 0 32px rgba(245,200,66,0.15);
-      animation:banner-border-pulse 2.5s ease-in-out infinite;
-    " ontouchstart="this.style.opacity='0.8'" ontouchend="this.style.opacity='1'">
-      <!-- shimmer sweep -->
-      <div style="position:absolute;inset:0;pointer-events:none;
-        background:linear-gradient(105deg,transparent 30%,rgba(245,200,66,0.08) 50%,transparent 70%);
-        background-size:200% 100%;animation:banner-sweep 3s linear infinite;"></div>
-
-      <!-- label -->
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:3px;
-        color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:14px;">
-        🏆 CHAMPIONSHIP SERIES
-      </div>
-
-      <!-- teams -->
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
-          <div style="width:56px;height:56px;border-radius:50%;background:var(--bg1);border:2px solid rgba(245,200,66,0.4);
-            display:flex;align-items:center;justify-content:center;overflow:hidden;
-            animation:logo-float 3s ease-in-out infinite;">
-            ${aLogo}
-          </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);">SAS</div>
-          <div style="font-size:10px;color:var(--text3);">San Antonio Spurs</div>
-        </div>
-
-        <div style="text-align:center;flex-shrink:0;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--gold);
-            background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);
-            border-radius:8px;padding:5px 12px;animation:vs-ping 2s ease-in-out infinite;">
-            VS
-          </div>
-          <div style="font-size:9px;color:var(--text3);margin-top:6px;letter-spacing:1px;">LIVE SERIES</div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
-          <div style="width:56px;height:56px;border-radius:50%;background:var(--bg1);border:2px solid rgba(245,200,66,0.4);
-            display:flex;align-items:center;justify-content:center;overflow:hidden;
-            animation:logo-float-r 3s ease-in-out infinite;animation-delay:1.5s;">
-            ${hLogo}
-          </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);">NYK</div>
-          <div style="font-size:10px;color:var(--text3);">New York Knicks</div>
-        </div>
-      </div>
-
-      <!-- CTA -->
-      <div style="margin-top:14px;padding:10px;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.25);
-        border-radius:var(--r-sm);text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--gold);letter-spacing:1.5px;">
-          🤖 GET AI PICKS FOR THIS GAME
-        </span>
-        <span style="color:var(--gold);font-size:16px;">→</span>
+  if (!games || games.length === 0) {
+    el.innerHTML = `<div style="padding:0 16px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:32px 20px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">📅</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px;">NO UPCOMING GAMES</div>
+        <div style="font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:16px;">All games today are live or finished.<br>Check back later for upcoming matchups.</div>
+        <button onclick="aiBetState.games=null;renderAIBetPage()" style="padding:10px 20px;border:1px solid var(--orange);border-radius:20px;background:none;color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">🔄 REFRESH MATCHUPS</button>
       </div>
     </div>`;
+    return;
   }
 
-  // ── Other upcoming games ──
-  if (otherGames.length > 0) {
-    const byDate = {};
-    otherGames.forEach(g => {
-      const label = formatGameDate(g.tipoff || g.date);
-      if (!byDate[label]) byDate[label] = [];
-      byDate[label].push(g);
-    });
+  // Group by date
+  const byDate = {};
+  games.forEach(g => {
+    const label = formatGameDate(g.tipoff || g.date);
+    if (!byDate[label]) byDate[label] = [];
+    byDate[label].push(g);
+  });
 
-    html += `<div class="sec-label">OTHER GAMES</div>`;
-    Object.entries(byDate).forEach(([label, gms]) => {
-      gms.forEach(g => {
-        const aLogo = teamLogoImg(g.awayAbbr, 30);
-        const hLogo = teamLogoImg(g.homeAbbr, 30);
-        const tipoff = phDateTime(g.tipoff);
-        html += `<div class="ss-game-card" onclick="selectAIBetGame(${JSON.stringify(g).replace(/"/g,'&quot;')})">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-              <div style="width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${aLogo}</div>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;">${g.awayAbbr}</span>
-              <span style="color:var(--text3);font-size:11px;font-weight:600;">@</span>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;">${g.homeAbbr}</span>
-              <div style="width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${hLogo}</div>
-            </div>
-            <div style="flex-shrink:0;text-align:right;">
-              <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--blue-dim);color:var(--blue);">${tipoff||'UPCOMING'}</span>
-            </div>
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px;">
+    <div style="font-size:11px;color:var(--text3);">Tap a game to build your AI bet slip</div>
+    <button onclick="aiBetState.games=null;renderAIBetPage()" style="background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 12px;color:var(--orange);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🔄 REFRESH MATCHUPS</button>
+  </div>`;
+
+  Object.entries(byDate).forEach(([label, gms]) => {
+    html += `<div class="sec-label">${label}</div>`;
+    gms.forEach(g => {
+      const aLogo = teamLogoImg(g.awayAbbr, 30);
+      const hLogo = teamLogoImg(g.homeAbbr, 30);
+      const tipoff = phDateTime(g.tipoff);
+      html += `<div class="ss-game-card" onclick="selectAIBetGame(${JSON.stringify(g).replace(/"/g,'&quot;')})">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${aLogo}</div>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;">${g.awayAbbr}</span>
+            <span style="color:var(--text3);font-size:11px;font-weight:600;">@</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;">${g.homeAbbr}</span>
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${hLogo}</div>
           </div>
-        </div>`;
-      });
+          <div style="flex-shrink:0;text-align:right;">
+            <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--blue-dim);color:var(--blue);">${tipoff||'UPCOMING'}</span>
+          </div>
+        </div>
+      </div>`;
     });
-  } else if (!finalsGame) {
-    html += `<div style="padding:0 16px;"><div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;text-align:center;">
-      <div style="font-size:13px;color:var(--text3);">No other upcoming games found.</div>
-    </div></div>`;
-  }
+  });
 
   html += `<div style="height:16px"></div>`;
   el.innerHTML = html;
@@ -7930,74 +7696,16 @@ function updateProviderHint() {
     groq:       'Get free key at console.groq.com',
     openai:     'Get key at platform.openai.com',
     openrouter: 'Get key at openrouter.ai',
-    gemini:     'Get FREE key at aistudio.google.com → Get API Key',
     none:       'No AI — rule-based suggestions only',
   };
   const el = document.getElementById('settings-key-hint');
   if (el) el.textContent = hints[p] || 'Stored locally on your device only';
 }
 
-function renderSettingsPageHTML() {
-  const el = document.getElementById('settings-page-content');
-  if (!el) return;
-  el.innerHTML = `
-    <div class="settings-section">
-      <div class="settings-section-header">🤖 AI PROVIDER</div>
-      <div class="settings-row">
-        <div>
-          <div class="settings-label">Provider</div>
-          <div class="settings-sub">Choose your AI for bet analysis</div>
-        </div>
-        <select class="settings-select" id="settings-provider" onchange="onProviderChange()">
-          <option value="none">None (rule-based)</option>
-          <option value="gemini">Gemini (Google — FREE)</option>
-          <option value="groq">Groq (FREE tier)</option>
-          <option value="openai">OpenAI (GPT-4o mini)</option>
-          <option value="openrouter">OpenRouter</option>
-          <option value="anthropic">Anthropic (Claude)</option>
-        </select>
-      </div>
-      <div class="settings-row">
-        <div style="flex:1;min-width:0;">
-          <div class="settings-label">API Key</div>
-          <div class="settings-sub" id="settings-key-hint">Select a provider above</div>
-        </div>
-      </div>
-      <div class="settings-row" style="padding-top:6px;padding-bottom:12px;">
-        <input class="settings-input" id="settings-apikey" type="password" placeholder="Paste your API key here…" style="width:100%;">
-      </div>
-    </div>
-    <div class="settings-section">
-      <div class="settings-section-header">🏀 PARLAY LEGS</div>
-      <div class="settings-row" id="settings-legs-row">
-        <div class="settings-label">Default leg count</div>
-        <div style="display:flex;gap:6px;">
-          ${[2,3,4,5].map(n=>`<button class="leg-count-btn" onclick="setSettingsLegs(${n})" style="width:36px;height:36px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">${n}</button>`).join('')}
-        </div>
-      </div>
-    </div>
-    <button class="settings-save-btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
-    <div style="height:16px;"></div>
-  `;
-}
-
 // ════════════════════════════════════════════════
 //  AI PROVIDER CALLER
 // ════════════════════════════════════════════════
 const AI_CONFIGS = {
-  gemini: {
-    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-    buildBody: (systemPrompt, userMsg, maxTokens) => ({
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ role: 'user', parts: [{ text: userMsg }] }],
-      generationConfig: { maxOutputTokens: maxTokens || 1200 },
-    }),
-    buildHeaders: (key) => ({
-      'Content-Type': 'application/json',
-      'x-goog-api-key': key,
-    }),
-    extractText: (data) => data?.candidates?.[0]?.content?.parts?.[0]?.text || '',
-  },
   anthropic: {
     url: 'https://api.anthropic.com/v1/messages',
     model: 'claude-haiku-4-5',
@@ -8067,11 +7775,7 @@ async function callAIProvider(systemPrompt, userMsg, maxTokens) {
   const cfg = AI_CONFIGS[provider];
   if (!cfg) return null;
   try {
-    // Gemini uses key as query param
-    const url = provider === 'gemini'
-      ? `${cfg.url}?key=${encodeURIComponent(apiKey)}`
-      : cfg.url;
-    const resp = await fetch(url, {
+    const resp = await fetch(cfg.url, {
       method: 'POST',
       headers: cfg.buildHeaders(apiKey),
       body: JSON.stringify(cfg.buildBody(systemPrompt, userMsg, maxTokens)),
@@ -8287,47 +7991,26 @@ async function suggestParlay() {
     const t = phDateTime(g.tipoff) || formatGameDate(g.date);
     return `${g.awayAbbr} @ ${g.homeAbbr} (${t})`;
   });
-
-  // Always prepend the 2026 NBA Finals
-  const finalsInLines = gameLines.some(l => l.includes('SAS') && l.includes('NYK'));
-  if (!finalsInLines) gameLines.unshift('SAS @ NYK (2026 NBA FINALS — FEATURED GAME)');
-
   const gamesContext = gameLines.length > 0
-    ? `\n\nUPCOMING NBA GAMES (2026 NBA FINALS IN PROGRESS — SAS vs NYK):\n${gameLines.join('\n')}\n\nIMPORTANT: The 2026 NBA Finals is the PRIMARY matchup. Prioritize SAS (Spurs) and NYK (Knicks) players. ONLY suggest picks from the players in these actual upcoming matchups listed above. Do NOT invent games or use players not playing in these matchups.`
-    : '\n\n(2026 NBA Finals in progress — suggest picks from SAS vs NYK. SAS: Wembanyama, Castle, Vassell, Sochan. NYK: Brunson, KAT, Anunoby, Bridges, Hart.)';
+    ? `\n\nUPCOMING NBA GAMES:\n${gameLines.join('\n')}\n\nIMPORTANT: ONLY suggest picks from the players in these actual upcoming matchups listed above. Do NOT invent games or use players not playing in these matchups.`
+    : '\n\n(No upcoming game data available — suggest picks from any real NBA game scheduled today or tomorrow.)';
 
-  // Build per-team roster hints for the AI — always include Finals teams first
-  const finalsHints = [
-    `SAS PLAYERS (away/2026 Finals): ${(ROSTERS['SAS']||[]).filter((_,i)=>i<8).map(p=>p.name).join(', ')}`,
-    `NYK PLAYERS (home/2026 Finals): ${(ROSTERS['NYK']||[]).filter((_,i)=>i<8).map(p=>p.name).join(', ')}`,
-  ];
-  const otherHints = upcomingGames.filter(g => !(g.awayAbbr==='SAS'&&g.homeAbbr==='NYK')).slice(0, 4).map(g => {
-    const awayRoster = (ROSTERS[g.awayAbbr]||[]).filter((_,i)=>i<8).map(p=>p.name).join(', ');
-    const homeRoster = (ROSTERS[g.homeAbbr]||[]).filter((_,i)=>i<8).map(p=>p.name).join(', ');
-    return `${g.awayAbbr} PLAYERS (away): ${awayRoster}\n${g.homeAbbr} PLAYERS (home): ${homeRoster}`;
-  });
-  const rosterHints = [...finalsHints, ...otherHints].join('\n');
+  // Build per-team roster hints for the AI
+  const rosterHints = upcomingGames.slice(0, 6).map(g => {
+    const awayRoster = (ROSTERS[g.awayAbbr]||[]).filter((_,i)=>i<6).map(p=>p.name).join(', ');
+    const homeRoster = (ROSTERS[g.homeAbbr]||[]).filter((_,i)=>i<6).map(p=>p.name).join(', ');
+    return `${g.awayAbbr}: ${awayRoster}\n${g.homeAbbr}: ${homeRoster}`;
+  }).join('\n');
 
   try {
     let parsed = null;
     if (hasAI) {
-      const systemPrompt = `You are a sharp NBA betting analyst for the 2025-26 season. It is currently the 2026 NBA Finals: San Antonio Spurs (SAS) vs New York Knicks (NYK). Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.
-
-ABSOLUTE RULES — NEVER BREAK THESE:
-1. ONLY suggest players who are listed in the TEAM ROSTERS provided.
-2. NEVER suggest a player for a team they don't play for.
-3. If a player name is not in the roster list for that team, do NOT use them.
-4. Double-check every pick: the player name MUST appear in the roster for their team.
-5. Key SAS players: Victor Wembanyama (C, #1), Stephon Castle (PG, #5), Devin Vassell (SG, #24), Jeremy Sochan (PF, #10).
-6. Key NYK players: Jalen Brunson (PG, #11), Karl-Anthony Towns (C, #32), OG Anunoby (SF, #8), Mikal Bridges (SG, #13), Josh Hart (SF, #3).
-7. Do NOT use players like Julius Randle, RJ Barrett, or Chris Paul — they are NOT on these Finals rosters.`;`;
+      const systemPrompt = `You are a sharp NBA betting analyst. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON. CRITICAL: Only suggest picks for players playing in the upcoming games listed in the user message.`;
       const userMsg = `Suggest a ${n}-leg NBA parlay.
 User preference: ${context}.${gamesContext}
 
-VERIFIED TEAM ROSTERS — YOU MAY ONLY USE PLAYERS FROM THIS LIST:
+TEAM ROSTERS FOR THESE GAMES:
 ${rosterHints}
-
-CRITICAL: Before finalizing each pick, verify the player appears in the roster list above for their team. If they are not listed, choose a different player who IS listed.
 
 Return ONLY valid JSON, no markdown:
 {
