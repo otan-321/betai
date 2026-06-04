@@ -795,10 +795,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
   transition:transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
 }
-/* shown = slide in; hidden = slide out; default hidden until update detected */
 #update-banner.show{transform:translateX(-50%) translateY(0);}
-/* once shown, keep it permanently until user acts */
-#update-banner.show.permanent{pointer-events:auto;}
 #update-banner .ub-icon{font-size:20px;flex-shrink:0;}
 #update-banner .ub-text{flex:1;min-width:0;}
 #update-banner .ub-title{
@@ -1891,6 +1888,7 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
     <div class="ub-sub">A GitHub update is ready — refresh to get the latest.</div>
   </div>
   <button class="ub-btn" onclick="applyUpdate()">UPDATE</button>
+  <button class="ub-dismiss" onclick="dismissUpdate()" aria-label="Dismiss">&times;</button>
 </div>
 
 <script>
@@ -2306,17 +2304,18 @@ const ROSTERS = {
 //  2026 NBA FINALS — HARDCODED FEATURED GAME
 // ════════════════════════════════════════════════
 const NBA_FINALS_2026 = {
-  id: 'finals2026',
-  date: getTodayPHT(),
-  awayAbbr: 'SAS',
-  homeAbbr: 'NYK',
-  awayName: 'Spurs',
-  homeName: 'Knicks',
+  id: 'finals2026-g2',
+  date: '20260606',
+  awayAbbr: 'NYK',
+  homeAbbr: 'SAS',
+  awayName: 'Knicks',
+  homeName: 'Spurs',
   inProgress: false,
   completed: false,
   isFinals: true,
-  tipoff: new Date().toISOString(),
-  statusDisplay: '2026 NBA FINALS',
+  tipoff: '2026-06-06T00:30:00.000Z',
+  statusDisplay: '2026 NBA FINALS — Game 2',
+  seriesRecord: 'NYK leads 1-0',
 };
 
 const PLAYER_MARKETS = ["Points","Rebounds","Assists","3PT Made","PRA (Pts+Reb+Ast)","Steals","Blocks"];
@@ -2361,7 +2360,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function showUpdateBanner() {
     const b = document.getElementById('update-banner');
-    if (b) { b.classList.add('show'); b.classList.add('permanent'); }
+    if (b) b.classList.add('show');
   }
 
   if ('serviceWorker' in navigator) {
@@ -5606,7 +5605,7 @@ async function fetchAIBetGames() {
   out.sort((a,b) => a.tipoff.localeCompare(b.tipoff));
 
   // ── Always inject 2026 NBA Finals at the top ──
-  const finalsAlreadyIn = out.some(g => g.awayAbbr === 'SAS' && g.homeAbbr === 'NYK');
+  const finalsAlreadyIn = out.some(g => (g.awayAbbr === 'SAS' || g.homeAbbr === 'SAS') && (g.awayAbbr === 'NYK' || g.homeAbbr === 'NYK'));
   if (!finalsAlreadyIn) {
     out.unshift({ ...NBA_FINALS_2026 });
   }
@@ -5956,6 +5955,10 @@ function applyUpdate() {
   } else {
     window.location.reload();
   }
+}
+function dismissUpdate() {
+  const b = document.getElementById('update-banner');
+  if (b) b.classList.remove('show');
 }
 
 // ── FLEX WIN CARD ────────────────────────────────
@@ -8352,11 +8355,11 @@ async function suggestParlay() {
 
   // Always prepend the 2026 NBA Finals
   const finalsInLines = gameLines.some(l => l.includes('SAS') && l.includes('NYK'));
-  if (!finalsInLines) gameLines.unshift('SAS @ NYK (2026 NBA FINALS — FEATURED GAME)');
+  if (!finalsInLines) gameLines.unshift('NYK @ SAS — Game 2 (2026 NBA FINALS — Sat Jun 6, 8:30 AM PHT — NYK leads series 1-0)');
 
   const gamesContext = gameLines.length > 0
-    ? `\n\nUPCOMING NBA GAMES (2026 NBA FINALS IN PROGRESS — SAS vs NYK):\n${gameLines.join('\n')}\n\nIMPORTANT: The 2026 NBA Finals is the PRIMARY matchup. Prioritize SAS (Spurs) and NYK (Knicks) players. ONLY suggest picks from the players in these actual upcoming matchups listed above. Do NOT invent games or use players not playing in these matchups.`
-    : '\n\n(2026 NBA Finals in progress — suggest picks from SAS vs NYK. SAS: Wembanyama, Castle, Vassell, Sochan. NYK: Brunson, KAT, Anunoby, Bridges, Hart.)';
+    ? `\n\nUPCOMING NBA GAMES (2026 NBA FINALS — GAME 2 IS NEXT):\n${gameLines.join('\n')}\n\nSERIES CONTEXT: Game 1 is OVER — NYK won 105-95 at SAS. NYK leads series 1-0. Game 2: NYK @ SAS, Sat Jun 6, 8:30 AM PHT. ONLY recommend picks for Game 2 and beyond. Do NOT recommend picks for Game 1 (already completed). ONLY suggest picks from the players in these actual upcoming matchups listed above. Do NOT invent games or use players not playing in these matchups.`
+    : '\n\n(2026 NBA Finals — Game 1 FINAL: NYK 105, SAS 95. NYK leads 1-0. NEXT: Game 2 — NYK @ SAS, Sat Jun 6, 8:30 AM PHT. SAS: Wembanyama, Castle, Vassell, Sochan. NYK: Brunson, KAT, Anunoby, Bridges, Hart.)';
 
   // Build per-team roster hints for the AI — always include Finals teams first
   const finalsHints = [
@@ -8373,7 +8376,7 @@ async function suggestParlay() {
   try {
     let parsed = null;
     if (hasAI) {
-      const systemPrompt = `You are a sharp NBA betting analyst for the 2025-26 season. It is currently the 2026 NBA Finals: San Antonio Spurs (SAS) vs New York Knicks (NYK). Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.
+      const systemPrompt = `You are a sharp NBA betting analyst for the 2025-26 season. It is currently the 2026 NBA Finals: San Antonio Spurs (SAS) vs New York Knicks (NYK). NYK leads the series 1-0 after winning Game 1 on Jun 4 (NYK 105, SAS 95). NEXT GAME: Game 2 — NYK @ SAS, Sat Jun 6, 8:30 AM PHT. Always respond with ONLY valid JSON, no markdown, no explanation outside the JSON.
 
 ABSOLUTE RULES — NEVER BREAK THESE:
 1. ONLY suggest players who are listed in the TEAM ROSTERS provided.
@@ -8382,7 +8385,8 @@ ABSOLUTE RULES — NEVER BREAK THESE:
 4. Double-check every pick: the player name MUST appear in the roster for their team.
 5. Key SAS players: Victor Wembanyama (C, #1), Stephon Castle (PG, #5), Devin Vassell (SG, #24), Jeremy Sochan (PF, #10).
 6. Key NYK players: Jalen Brunson (PG, #11), Karl-Anthony Towns (C, #32), OG Anunoby (SF, #8), Mikal Bridges (SG, #13), Josh Hart (SF, #3).
-7. Do NOT use players like Julius Randle, RJ Barrett, or Chris Paul — they are NOT on these Finals rosters.`;
+7. Do NOT use players like Julius Randle, RJ Barrett, or Chris Paul — they are NOT on these Finals rosters.
+8. NEVER recommend picks for Game 1 — it is already FINAL (NYK 105, SAS 95). Only recommend for Game 2 (Jun 6) and later games.`;
       const userMsg = `Suggest a ${n}-leg NBA parlay.
 User preference: ${context}.${gamesContext}
 
