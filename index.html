@@ -1521,19 +1521,15 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 
     <div style="height:14px"></div>
 
-    <!-- Stats -->
-    <div class="stat-grid">
-      <div class="stat-card s-orange"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Total Bets</div></div>
-      <div class="stat-card s-gold"><div class="stat-val" id="s-winrate">0%</div><div class="stat-lbl">Win Rate</div></div>
-      <div class="stat-card s-green"><div class="stat-val" id="s-wins">0</div><div class="stat-lbl">Wins</div></div>
-      <div class="stat-card s-red"><div class="stat-val" id="s-losses">0</div><div class="stat-lbl">Losses</div></div>
-    </div>
-
-    <!-- P&L -->
+    <!-- NBA Finals Live -->
+    <div class="sec-label">🏀 NBA FINALS LIVE 🔴</div>
     <div class="profit-card">
-      <div class="profit-label">Profit / Loss (₱)</div>
-      <div class="profit-val profit-pos" id="s-profit">+0.00u</div>
-      <button onclick="showPage('analytics')" style="margin-top:12px;width:100%;padding:9px;border:1px solid rgba(255,107,26,0.35);border-radius:8px;background:none;color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;">📊 VIEW STATS</button>
+      <div class="profit-label">Paste Your Live Stream URL</div>
+      <input id="home-stream-url" type="text" placeholder="https://example.com/live.m3u8"
+      style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#111;color:#fff;margin-top:10px;">
+      <button onclick="window.open(document.getElementById('home-stream-url').value,'_blank')"
+      style="margin-top:12px;width:100%;padding:10px;border:1px solid rgba(255,107,26,0.35);border-radius:8px;background:none;color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;">▶ WATCH LIVE</button>
+      <div style="margin-top:10px;font-size:12px;opacity:.8">Status: Waiting for stream URL...</div>
     </div>
 
     <!-- AI Smart Suggestion -->
