@@ -8799,5 +8799,75 @@ function renderSlipAnalyzerResult(parsed) {
 
 
 </script>
+
+<!-- NBA FINALS LIVE MODULE -->
+<section id="nba-finals-live" style="margin:16px;padding:16px;border-radius:16px;background:#111827;color:white;">
+  <h2>🏀 NBA FINALS LIVE <span style="color:#ef4444;">● LIVE</span></h2>
+  <p>Paste the playable stream URL (.m3u8) below.</p>
+
+  <input id="streamUrlInput" 
+    placeholder="https://example.com/live.m3u8"
+    style="width:100%;padding:12px;border-radius:10px;border:0;margin-bottom:10px;">
+
+  <button onclick="startNBAStream()"
+    style="padding:12px 18px;border:0;border-radius:10px;cursor:pointer;">
+    ▶ Watch Live
+  </button>
+
+  <video id="nbaLivePlayer"
+    controls
+    playsinline
+    style="width:100%;margin-top:15px;border-radius:12px;background:#000;">
+  </video>
+
+  <p id="streamStatus">Waiting for stream...</p>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<script>
+let nbaHls;
+
+function startNBAStream(){
+  const url = document.getElementById("streamUrlInput").value.trim();
+  const video = document.getElementById("nbaLivePlayer");
+  const status = document.getElementById("streamStatus");
+
+  if(!url){
+    status.innerText = "Please enter a stream URL.";
+    return;
+  }
+
+  localStorage.setItem("nbaFinalsStream", url);
+
+  if(nbaHls){
+    nbaHls.destroy();
+  }
+
+  if(video.canPlayType("application/vnd.apple.mpegurl")){
+    video.src = url;
+  } else if(Hls.isSupported()){
+    nbaHls = new Hls();
+    nbaHls.loadSource(url);
+    nbaHls.attachMedia(video);
+    nbaHls.on(Hls.Events.MANIFEST_PARSED, function(){
+      video.play();
+    });
+  } else {
+    status.innerText = "Browser does not support this stream.";
+    return;
+  }
+
+  status.innerText = "Loading NBA Finals stream...";
+}
+
+window.addEventListener("load",()=>{
+ const saved = localStorage.getItem("nbaFinalsStream");
+ if(saved){
+   document.getElementById("streamUrlInput").value=saved;
+ }
+});
+</script>
+
 </body>
 </html>
