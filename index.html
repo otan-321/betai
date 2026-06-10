@@ -5167,10 +5167,10 @@ async function resolveLeg(leg, games, mode) {
             labels.forEach((lb,i)=>{ sm[lb]=parseFloat(stats[i])||0; });
             const val = statType==='rebounds'?(sm['reb']||sm['trb']||0)
               :statType==='assists'?(sm['ast']||0)
-              :statType==='threesMade'?((sm['3pm']||sm['fg3m']||sm['3pt']||sm['threes'])||0)
-              :statType==='blocks'?((sm['blk']||sm['blocks'])||0)
-              :statType==='steals'?((sm['stl']||sm['steals'])||0)
-              :((sm['pts']||sm['points'])||0);
+              :statType==='threesMade'?((sm['3pm']||sm['fg3m']||sm['3pt']||sm['threes']||0))
+              :statType==='blocks'?((sm['blk']||sm['blocks']||0))
+              :statType==='steals'?((sm['stl']||sm['steals']||0))
+              :((sm['pts']||sm['points']||0));
             playerStat = { name:ath.athlete?.displayName||playerName, val };
             break outer;
           }
