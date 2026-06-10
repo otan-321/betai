@@ -68,7 +68,7 @@ export default {
 
       // Live games: cache 20 seconds. Static/upcoming: 60 seconds.
       const isLive = path.includes('summary') || path.includes('scoreboard');
-      const maxAge = isLive ? 20 : 60;
+      const maxAge = isLive ? 5 : 60;
 
       return new Response(JSON.stringify(data), {
         headers: {

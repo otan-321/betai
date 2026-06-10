@@ -1521,15 +1521,19 @@ input, select, textarea { font-size:16px !important; } /* prevent iOS zoom */
 
     <div style="height:14px"></div>
 
-    <!-- NBA Finals Live -->
-    <div class="sec-label">🏀 NBA FINALS LIVE 🔴</div>
+    <!-- Stats -->
+    <div class="stat-grid">
+      <div class="stat-card s-orange"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Total Bets</div></div>
+      <div class="stat-card s-gold"><div class="stat-val" id="s-winrate">0%</div><div class="stat-lbl">Win Rate</div></div>
+      <div class="stat-card s-green"><div class="stat-val" id="s-wins">0</div><div class="stat-lbl">Wins</div></div>
+      <div class="stat-card s-red"><div class="stat-val" id="s-losses">0</div><div class="stat-lbl">Losses</div></div>
+    </div>
+
+    <!-- P&L -->
     <div class="profit-card">
-      <div class="profit-label">Paste Your Live Stream URL</div>
-      <input id="home-stream-url" type="text" placeholder="https://example.com/live.m3u8"
-      style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#111;color:#fff;margin-top:10px;">
-      <button onclick="window.open(document.getElementById('home-stream-url').value,'_blank')"
-      style="margin-top:12px;width:100%;padding:10px;border:1px solid rgba(255,107,26,0.35);border-radius:8px;background:none;color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;">▶ WATCH LIVE</button>
-      <div style="margin-top:10px;font-size:12px;opacity:.8">Status: Waiting for stream URL...</div>
+      <div class="profit-label">Profit / Loss (₱)</div>
+      <div class="profit-val profit-pos" id="s-profit">+0.00u</div>
+      <button onclick="showPage('analytics')" style="margin-top:12px;width:100%;padding:9px;border:1px solid rgba(255,107,26,0.35);border-radius:8px;background:none;color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;">📊 VIEW STATS</button>
     </div>
 
     <!-- AI Smart Suggestion -->
@@ -4507,12 +4511,12 @@ function stopAutoRefresh() {
 
 function startAutoRefresh() {
   stopAutoRefresh();
-  liveState.autoRefreshCountdown = 60;
+  liveState.autoRefreshCountdown = 5;
   updateRefreshCountdown();
   liveState.autoRefreshTimer = setInterval(async () => {
     liveState.autoRefreshCountdown--;
     if (liveState.autoRefreshCountdown <= 0) {
-      liveState.autoRefreshCountdown = 60;
+      liveState.autoRefreshCountdown = 5;
       await runLiveCheck(true);
     } else {
       updateRefreshCountdown();
@@ -5163,10 +5167,10 @@ async function resolveLeg(leg, games, mode) {
             labels.forEach((lb,i)=>{ sm[lb]=parseFloat(stats[i])||0; });
             const val = statType==='rebounds'?(sm['reb']||sm['trb']||0)
               :statType==='assists'?(sm['ast']||0)
-              :statType==='threesMade'?(sm['3pm']||0)
-              :statType==='blocks'?(sm['blk']||0)
-              :statType==='steals'?(sm['stl']||0)
-              :(sm['pts']||0);
+              :statType==='threesMade'?((sm['3pm']||sm['fg3m']||sm['3pt']||sm['threes'])||0)
+              :statType==='blocks'?((sm['blk']||sm['blocks'])||0)
+              :statType==='steals'?((sm['stl']||sm['steals'])||0)
+              :((sm['pts']||sm['points'])||0);
             playerStat = { name:ath.athlete?.displayName||playerName, val };
             break outer;
           }
@@ -7438,7 +7442,7 @@ function renderLiveTrackerBets(pending, games, boxScores) {
   // Always show refresh bar
   html += `
     <div style="padding:8px 16px 4px;display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:10px;color:var(--text3);" id="live-tracker-refresh-label">↻ Updates every 45s</span>
+      <span style="font-size:10px;color:var(--text3);" id="live-tracker-refresh-label">↻ Updates every 5s</span>
       <button onclick="renderLiveTracker()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--text3);font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">REFRESH NOW</button>
     </div>`;
 
@@ -7448,13 +7452,13 @@ function renderLiveTrackerBets(pending, games, boxScores) {
 
 function startLiveTrackerRefresh(games, boxScores) {
   stopLiveTrackerRefresh();
-  let countdown = 45;
+  let countdown = 5;
   liveTrackerRefreshTimer = setInterval(() => {
     countdown--;
     const lbl = document.getElementById('live-tracker-refresh-label');
     if (lbl) lbl.textContent = `↻ Refreshing in ${countdown}s`;
     if (countdown <= 0) {
-      countdown = 45;
+      countdown = 5;
       if (trackerTab === 'live') renderLiveTracker();
     }
   }, 1000);
@@ -8795,75 +8799,5 @@ function renderSlipAnalyzerResult(parsed) {
 
 
 </script>
-
-<!-- NBA FINALS LIVE MODULE -->
-<section id="nba-finals-live" style="margin:16px;padding:16px;border-radius:16px;background:#111827;color:white;">
-  <h2>🏀 NBA FINALS LIVE <span style="color:#ef4444;">● LIVE</span></h2>
-  <p>Paste the playable stream URL (.m3u8) below.</p>
-
-  <input id="streamUrlInput" 
-    placeholder="https://example.com/live.m3u8"
-    style="width:100%;padding:12px;border-radius:10px;border:0;margin-bottom:10px;">
-
-  <button onclick="startNBAStream()"
-    style="padding:12px 18px;border:0;border-radius:10px;cursor:pointer;">
-    ▶ Watch Live
-  </button>
-
-  <video id="nbaLivePlayer"
-    controls
-    playsinline
-    style="width:100%;margin-top:15px;border-radius:12px;background:#000;">
-  </video>
-
-  <p id="streamStatus">Waiting for stream...</p>
-</section>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-<script>
-let nbaHls;
-
-function startNBAStream(){
-  const url = document.getElementById("streamUrlInput").value.trim();
-  const video = document.getElementById("nbaLivePlayer");
-  const status = document.getElementById("streamStatus");
-
-  if(!url){
-    status.innerText = "Please enter a stream URL.";
-    return;
-  }
-
-  localStorage.setItem("nbaFinalsStream", url);
-
-  if(nbaHls){
-    nbaHls.destroy();
-  }
-
-  if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src = url;
-  } else if(Hls.isSupported()){
-    nbaHls = new Hls();
-    nbaHls.loadSource(url);
-    nbaHls.attachMedia(video);
-    nbaHls.on(Hls.Events.MANIFEST_PARSED, function(){
-      video.play();
-    });
-  } else {
-    status.innerText = "Browser does not support this stream.";
-    return;
-  }
-
-  status.innerText = "Loading NBA Finals stream...";
-}
-
-window.addEventListener("load",()=>{
- const saved = localStorage.getItem("nbaFinalsStream");
- if(saved){
-   document.getElementById("streamUrlInput").value=saved;
- }
-});
-</script>
-
 </body>
 </html>
